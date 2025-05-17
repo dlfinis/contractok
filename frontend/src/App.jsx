@@ -4,13 +4,14 @@ import InitialAnimation from "./components/InitialAnimation";
 import HomeScreen from "./components/HomeScreen";
 import NavBar from "./components/NavBar";
 import AnimatedBackground from "./components/AnimatedBackground";
+import { useMiniKit } from "@worldcoin/minikit-js/minikit-provider";
 
 export default function App() {
   const [showHome, setShowHome] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
 
-  console.log('MiniKit is installed:', MiniKit.isInstalled())
-  console.log('MiniKit is Worldcoin:', MiniKit.isWorldcoin())
+  const { isInstalled } = useMiniKit();
+  console.log('MiniKit is installed:', isInstalled)
   
   return (
     <AnimatedBackground>
