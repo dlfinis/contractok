@@ -1,0 +1,165 @@
+@import url('./fonts.css');
+body, html, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--main-font), 'Sora', 'Quicksand', Arial, sans-serif;
+  background: #0A2E5A;
+  min-height: 100vh;
+}
+
+.app-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0A2E5A 60%, #00A878 90%);
+  display: flex;
+  flex-direction: column;
+}
+
+.initial-animation {
+  user-select: none;
+}
+
+.home-main {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 32px 16px 90px 16px;
+  font-family: var(--main-font), 'Sora', Arial, sans-serif;
+  background: linear-gradient(120deg, #0A2E5A 60%, #16E6D5 100%);
+  border-radius: 0 0 32px 32px;
+  box-shadow: 0 2px 24px #0A2E5A33;
+}
+.logo-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.logo-circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 32% 68% 61% 39% / 42% 51% 49% 58%;
+  background: linear-gradient(135deg, #16E6D5 60%, #FFD700 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #0A2E5A;
+  box-shadow: 0 0 32px #16E6D588, 0 0 18px #FFD70066;
+  margin-bottom: 12px;
+  font-family: var(--main-font), 'Sora', Arial, sans-serif;
+}
+.logo-title h2 {
+  color: #fff;
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 1.6px;
+  font-family: var(--main-font), 'Sora', Arial, sans-serif;
+  text-shadow: 0 2px 16px #7F5AF077, 0 2px 12px #0A2E5A99;
+}
+.subtitle {
+  color: #FFD700;
+  margin: 6px 0 0 0;
+  font-size: 1.11rem;
+  font-weight: 600;
+  text-align: center;
+  font-family: var(--main-font), 'Sora', Arial, sans-serif;
+  text-shadow: 0 2px 6px #0A2E5A55;
+}
+.main-btn {
+  width: 100%;
+  max-width: 340px;
+  font-size: 1.22rem;
+  font-weight: 700;
+  padding: 17px 0;
+  border: none;
+  border-radius: 14px;
+  margin: 18px 0 8px 0;
+  background: linear-gradient(90deg, #00A878 60%, #FFD700 100%);
+  color: #0A2E5A;
+  box-shadow: 0 4px 18px #00A87844;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.main-btn:active {
+  box-shadow: 0 2px 8px #00A87899;
+}
+.create-btn {
+  background: linear-gradient(90deg, #FFD700 40%, #00A878 100%);
+}
+.join-contract {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.join-contract input {
+  font-size: 1.1rem;
+  padding: 13px 12px;
+  border-radius: 12px;
+  border: 1.5px solid #FFD700;
+  outline: none;
+  margin-bottom: 4px;
+  background: #fff;
+  color: #0A2E5A;
+  font-weight: 500;
+}
+.join-btn {
+  background: linear-gradient(90deg, #0A2E5A 60%, #FFD700 100%);
+  color: #fff;
+}
+
+/* NavBar */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  background: #0A2E5A;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 64px;
+  box-shadow: 0 -2px 18px #0A2E5A33;
+  z-index: 1001;
+}
+.navbar-item {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-weight: 700;
+  transition: color .12s;
+}
+.navbar-item:active,
+.navbar-item:focus {
+  color: #FFD700;
+}
+.navbar-icon {
+  font-size: 1.45rem;
+}
+.navbar-label {
+  font-size: 0.88rem;
+}
+
+@media (max-width: 480px) {
+  .home-main {
+    padding: 16px 6px 80px 6px;
+  }
+  .main-btn, .join-contract {
+    max-width: 96vw;
+  }
+}

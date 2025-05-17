@@ -1,0 +1,14 @@
+{
+  "name": "contractok-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js --network worldchain"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "dotenv": "^16.0.0",
+    "hardhat": "^2.17.0"
+  }
+}
