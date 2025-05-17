@@ -9,6 +9,9 @@ export default function App() {
   const [showHome, setShowHome] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
 
+  console.log('MiniKit is installed:', MiniKit.isInstalled())
+  console.log('MiniKit is Worldcoin:', MiniKit.isWorldcoin())
+  
   return (
     <AnimatedBackground>
       <div className="app-bg">
