@@ -4,8 +4,21 @@ body, html, #root {
   margin: 0;
   padding: 0;
   font-family: var(--main-font), 'Sora', 'Quicksand', Arial, sans-serif;
-  background: #0A2E5A;
+  background: #f5f7fa;
   min-height: 100vh;
+  transition: background 0.6s;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .app-bg {
@@ -27,7 +40,7 @@ body, html, #root {
   justify-content: flex-start;
   padding: 32px 16px 90px 16px;
   font-family: var(--main-font), 'Sora', Arial, sans-serif;
-  background: linear-gradient(120deg, #0A2E5A 60%, #16E6D5 100%);
+  background: linear-gradient(180deg, #0b022b 70%, #ffd700 150%);
   border-radius: 0 0 32px 32px;
   box-shadow: 0 2px 24px #0A2E5A33;
 }
@@ -41,16 +54,13 @@ body, html, #root {
   width: 84px;
   height: 84px;
   border-radius: 32% 68% 61% 39% / 42% 51% 49% 58%;
-  background: linear-gradient(135deg, #16E6D5 60%, #FFD700 100%);
+  background: linear-gradient(135deg, #FFD700 0%, #7F5AF0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.4rem;
-  font-weight: 800;
-  color: #0A2E5A;
-  box-shadow: 0 0 32px #16E6D588, 0 0 18px #FFD70066;
+  box-shadow: 0 0 32px #FFD70088, 0 0 18px #7F5AF066;
   margin-bottom: 12px;
-  font-family: var(--main-font), 'Sora', Arial, sans-serif;
+  position: relative;
 }
 .logo-title h2 {
   color: #fff;
@@ -70,31 +80,90 @@ body, html, #root {
   font-family: var(--main-font), 'Sora', Arial, sans-serif;
   text-shadow: 0 2px 6px #0A2E5A55;
 }
-.main-btn {
-  width: 100%;
-  max-width: 340px;
-  font-size: 1.22rem;
-  font-weight: 700;
-  padding: 17px 0;
-  border: none;
-  border-radius: 14px;
-  margin: 18px 0 8px 0;
-  background: linear-gradient(90deg, #00A878 60%, #FFD700 100%);
-  color: #0A2E5A;
-  box-shadow: 0 4px 18px #00A87844;
+.home-btn-group {
   display: flex;
+  gap: 32px;
+  margin: 30px 0 18px 0;
+  justify-content: center;
+}
+
+.main-btn {
+  width: 12.5rem;
+  height: 7rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  padding: 0;
+  border: 2.5px solid #ece9f7;
+  border-radius: 32px;
+  font-size: 1.08rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: box-shadow .15s;
+  margin: 0;
+  color: #fff;
+  letter-spacing: 0.7px;
+  box-shadow: 0 6px 32px 0 #b3cfff33, 0 2px 12px 0 #7F5AF044;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  transition: background 0.22s, box-shadow 0.22s, transform 0.16s, border 0.22s;
+  outline: none;
+  position: relative;
+  overflow: hidden;
 }
-.main-btn:active {
-  box-shadow: 0 2px 8px #00A87899;
+
+.main-btn span[role="img"] {
+  font-size: 2.3rem;
+  margin-bottom: 4px;
+  display: block;
 }
+
 .create-btn {
-  background: linear-gradient(90deg, #FFD700 40%, #00A878 100%);
+  background: linear-gradient(135deg, #5a3ec8 0%, #7F5AF0 100%);
+  border: 2.5px solid #7F5AF0;
 }
+
+.join-btn {
+  background: linear-gradient(135deg, #00A878 0%, #6decc2 100%);
+  border: 2.5px solid #00A878;
+}
+
+.main-btn::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.06);
+  border-radius: 32px;
+  pointer-events: none;
+  box-shadow: 0 2px 16px 0 #fff8e122 inset;
+}
+
+.main-btn:hover, .main-btn:focus {
+  filter: brightness(1.09) saturate(1.13);
+  transform: translateY(-4px) scale(1.065);
+  box-shadow: 0 12px 38px 0 #b3cfff44, 0 6px 20px 0 #7F5AF044;
+  border-color: #b3cfff;
+}
+
+@media (max-width: 600px) {
+  .home-btn-group {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .main-btn {
+    width: 100%;
+    max-width: 340px;
+    height: 70px;
+    flex-direction: row;
+    font-size: 1rem;
+  }
+  .main-btn span[role="img"] {
+    font-size: 1.4rem;
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+}
+
 .join-contract {
   width: 100%;
   max-width: 340px;

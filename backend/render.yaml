@@ -1,0 +1,14 @@
+# Render.com configuration for NestJS backend
+services:
+  - type: web
+    name: contractok-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Agrega tus variables de entorno aquí o configúralas desde el dashboard de Render
+    autoDeploy: true
+    rootDir: .

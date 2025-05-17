@@ -1,5 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Quicksand:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Namdhinggo:wght@700&family=Sora:wght@700;800&family=Quicksand:wght@400;700&display=swap');
 
 :root {
-  --main-font: 'Sora', 'Quicksand', Arial, sans-serif;
+  --main-font: 'Quicksand', Arial, sans-serif;
+  --title-font: 'Namdhinggo', serif;
+  --logo-font: 'Namdhinggo', 'Sora', Arial, serif;
 }

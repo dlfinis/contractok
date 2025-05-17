@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const navItems = [
-  { icon: "👤", label: "Perfil", href: "#perfil" },
+  { icon: "🐘", label: "Perfil", href: "#perfil" },
   { icon: "📜", label: "Historial", href: "#historial" },
   { icon: "💬", label: "Soporte", href: "#soporte" },
 ];
