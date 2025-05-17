@@ -12,16 +12,29 @@ export class AppController {
 
   @Get('/health')
   async health() {
+    let userCount = null;
+    let worldcoinStatus = 'unknown';
     try {
-      let userCount = null;
+      // Revisión base de datos
       try {
         userCount = await this.prisma.user.count();
       } catch (e) {
         userCount = null;
       }
-      return { status: 'ok', userCount };
+      // Revisión servicio externo (Worldcoin)
+      try {
+        const res = await fetch('https://api.worldcoin.org/health');
+        if (res.ok) {
+          worldcoinStatus = 'ok';
+        } else {
+          worldcoinStatus = 'error';
+        }
+      } catch (e) {
+        worldcoinStatus = 'error';
+      }
+      return { status: 'ok', userCount, worldcoinStatus };
     } catch (e) {
-      return { status: 'error', error: e.message };
+      return { status: 'error', error: e.message, userCount, worldcoinStatus };
     }
   }
 

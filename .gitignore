@@ -47,6 +47,33 @@ contracts/artifacts/
 contracts/cache/
 contracts/typechain/
 
-# Fonts
-frontend/public/fonts/*.woff2
-frontend/public/fonts/*.woff
+# === Node & Build Artifacts ===
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
+
+# === Environment & Config Files ===
+**/.env
+**/.env.*
+**/*.local
+**/.DS_Store
+
+# === Logs ===
+**/*.log
+
+# === Lockfiles ===
+**/package-lock.json
+**/yarn.lock
+
+# === Vite ===
+**/.vite/
+
+# === Fonts ===
+**/public/fonts/*.woff2
+**/public/fonts/*.woff
+
+# === Contratos / Solidity ===
+**/artifacts/
+**/cache/
+**/typechain/

@@ -5,6 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function BackendHealth() {
   const [status, setStatus] = useState(null);
   const [userCount, setUserCount] = useState(null);
+  const [worldcoinStatus, setWorldcoinStatus] = useState(null);
   const [createRes, setCreateRes] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -12,13 +13,16 @@ export default function BackendHealth() {
     setLoading(true);
     setCreateRes(null);
     try {
-      const res = await fetch(`${API_URL}/health`);
+      console.log('API_URL', API_URL);
+      const res = await fetch('/api/health')
       const data = await res.json();
       setStatus(data.status);
       setUserCount(data.userCount);
+      setWorldcoinStatus(data.worldcoinStatus);
     } catch (e) {
       setStatus("error");
       setUserCount(null);
+      setWorldcoinStatus(null);
     }
     setLoading(false);
   };
@@ -56,7 +60,8 @@ export default function BackendHealth() {
         {status && (
           <div>
             <b>Status:</b> {status} <br/>
-            <b>User count:</b> {userCount !== null ? userCount : "-"}
+            <b>User count:</b> {userCount !== null ? userCount : "-"}<br/>
+            <b>Worldcoin status:</b> {worldcoinStatus ? worldcoinStatus : "-"}
           </div>
         )}
         {createRes && (
