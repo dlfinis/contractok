@@ -51,29 +51,8 @@ export default function ContractCreateScreen({ onCreated }) {
     }
   };
 
-  // Botón para crear usuario default (solo para pruebas/desarrollo)
-  const [userMsg, setUserMsg] = useState(null);
-  const handleCreateDefaultUser = async () => {
-    setUserMsg(null);
-    try {
-      await axios.post('/api/user', { hash_id: 'default_nullifier', name: 'Usuario Default' });
-      setUserMsg('Usuario Default creado correctamente.');
-    } catch (err) {
-      setUserMsg('Error al crear usuario: ' + (err.response?.data?.error || err.message));
-    }
-  };
-
   return (
     <div className="container mt-4 position-relative" style={{maxWidth: 480, minHeight: '92vh'}}>
-      {/* Botón de prueba para crear usuario default */}
-      {process.env.NODE_ENV !== 'production' && (
-        <div className="mb-3">
-          <button className="btn btn-warning btn-sm me-2" onClick={handleCreateDefaultUser}>
-            Crear Usuario Default
-          </button>
-          {userMsg && <span className="ms-2 small">{userMsg}</span>}
-        </div>
-      )}
       <div className="card shadow-sm">
         <div className="card-body">
           <h2 className="card-title text-center mb-4">Crear Contrato</h2>

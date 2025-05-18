@@ -1,28 +1,43 @@
 .support-screen-bg {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(10,46,90,0.22);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 46, 90, 0.5);
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
+  overflow: auto;
 }
+
 .support-screen-card {
   background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 28px #0A2E5A33;
-  padding: 34px 24px 28px 24px;
-  min-width: 340px;
-  max-width: 98vw;
-  min-height: 320px;
+  border-radius: 12px;
+  box-shadow: 0 4px 28px rgba(10, 46, 90, 0.2);
+  padding: 24px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  overflow: hidden;
 }
+
+.support-screen-content {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 8px;
+  margin-right: -8px;
+}
+
 .support-close-btn {
   position: absolute;
-  top: 12px; right: 16px;
+  top: 12px;
+  right: 16px;
   background: none;
   border: none;
   font-size: 1.6rem;
@@ -30,7 +45,32 @@
   cursor: pointer;
   font-weight: bold;
   transition: color 0.15s;
+  z-index: 10;
+  padding: 8px;
+  line-height: 1;
 }
+
 .support-close-btn:hover {
   color: #7F5AF0;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+}
+
+/* Scrollbar personalizada */
+.support-screen-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.support-screen-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.support-screen-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.support-screen-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
