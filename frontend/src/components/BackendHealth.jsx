@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -23,8 +24,8 @@ export default function BackendHealth() {
     setCreateRes(null);
     try {
       console.log('API_URL', API_URL);
-      const res = await fetch('/api/health')
-      const data = await res.json();
+      const res = await axios.get('/api/health')
+      const data = await res.data;
       setStatus(data.status);
       setUserCount(data.userCount);
       setWorldcoinStatus(data.worldcoinStatus);
@@ -39,15 +40,12 @@ export default function BackendHealth() {
   const createUser = async () => {
     setLoading(true);
     setCreateRes(null);
-    const email = `test${Math.floor(Math.random()*10000)}@test.com`;
     const name = "Test User";
     try {
-      const res = await fetch(`${API_URL}/user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name })
+      const res = await axios.post('/api/user', {
+        hash_id: 'default_nullifier', name
       });
-      const data = await res.json();
+      const data = await res.data;
       setCreateRes(data);
       checkHealth();
     } catch (e) {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import axios from 'axios';
+import InfoScreen from '../components/InfoScreen';
 
 const tipos = [
   { value: 'servicio', label: 'Servicio' },
@@ -19,14 +20,12 @@ export default function ContractCreateScreen({ onCreated }) {
   const [creadorId, setCreadorId] = useState(''); // placeholder, debe venir del login
   const [contraparteId, setContraparteId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setResultado(null);
     try {
       // Obtener nullifier_hash de localStorage o valor por defecto
       let nullifier_hash = 'default_nullifier';
@@ -42,8 +41,9 @@ export default function ContractCreateScreen({ onCreated }) {
         creadorHashId: nullifier_hash,
         contraparteHashId: contraparteId || undefined,
       });
-      setResultado(res.data);
-      if (onCreated) onCreated(res.data);
+      if (onCreated) {
+        onCreated(res.data);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Error al crear contrato');
     } finally {
@@ -51,8 +51,29 @@ export default function ContractCreateScreen({ onCreated }) {
     }
   };
 
+  // Botón para crear usuario default (solo para pruebas/desarrollo)
+  const [userMsg, setUserMsg] = useState(null);
+  const handleCreateDefaultUser = async () => {
+    setUserMsg(null);
+    try {
+      await axios.post('/api/user', { hash_id: 'default_nullifier', name: 'Usuario Default' });
+      setUserMsg('Usuario Default creado correctamente.');
+    } catch (err) {
+      setUserMsg('Error al crear usuario: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
   return (
     <div className="container mt-4 position-relative" style={{maxWidth: 480, minHeight: '92vh'}}>
+      {/* Botón de prueba para crear usuario default */}
+      {process.env.NODE_ENV !== 'production' && (
+        <div className="mb-3">
+          <button className="btn btn-warning btn-sm me-2" onClick={handleCreateDefaultUser}>
+            Crear Usuario Default
+          </button>
+          {userMsg && <span className="ms-2 small">{userMsg}</span>}
+        </div>
+      )}
       <div className="card shadow-sm">
         <div className="card-body">
           <h2 className="card-title text-center mb-4">Crear Contrato</h2>
@@ -191,58 +212,7 @@ export default function ContractCreateScreen({ onCreated }) {
               </span>
             </div>
           </div>
-          {resultado && (
-            <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{zIndex: 1100, background: 'rgba(0,0,0,0.12)'}}>
-              <div className="animate__animated animate__fadeInDown animate__faster card shadow-lg p-4" style={{maxWidth: 370, minWidth: 300, borderRadius: 16}}>
-                <button
-                  className="btn-close position-absolute end-0 top-0 m-3"
-                  aria-label="Cerrar"
-                  onClick={() => { setShowToast(true); if (onCreated) onCreated(resultado); }}
-                  style={{zIndex: 2}}
-                />
-                <div className="d-flex flex-column align-items-center justify-content-center">
-                  <i className="bi bi-check-circle-fill text-success mb-2" style={{fontSize:'2em'}}></i>
-                  <h4 className="mb-2">¡Contrato creado correctamente!</h4>
-                  <div className="mb-2 small text-dark text-center">
-                    El contrato fue registrado. Comparte el siguiente código con la contraparte para que pueda vincularse y aprobar/rechazar el contrato.
-                  </div>
-                  <div className="my-2 d-flex flex-column align-items-center">
-                    <span className="fw-bold" style={{fontSize:'1.4em',letterSpacing:'0.2em'}}>{resultado.codigoVinculacion}</span>
-                    <div className="d-flex gap-2 mt-2">
-                      <button
-                        className="btn btn-outline-primary btn-sm d-flex align-items-center gap-2"
-                        style={{fontSize:'0.92em'}}
-                        onClick={() => {
-                          navigator.clipboard.writeText(resultado.codigoVinculacion);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 1600);
-                        }}
-                      >
-                        <i className="bi bi-clipboard"></i>
-                        {copied ? '¡Copiado!' : 'Copiar código'}
-                      </button>
-                      <a
-                        className="btn btn-outline-success btn-sm d-flex align-items-center gap-2"
-                        style={{fontSize:'0.92em'}}
-                        href={`https://wa.me/?text=¡Únete%20a%20mi%20contrato%20en%20ContratosYa!%20Código:%20${resultado.codigoVinculacion}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <i className="bi bi-whatsapp"></i>
-                        Compartir WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-primary btn-sm mt-3 px-4 d-flex align-items-center gap-2"
-                    onClick={() => { setShowToast(true); if (onCreated) onCreated(resultado); }}
-                  >
-                    <i className="bi bi-house-door"></i> Ir a inicio
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Toast de éxito */}
           {showToast && (

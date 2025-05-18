@@ -95,6 +95,13 @@ export class AppController {
     const plazo = new Date(body.plazoEntrega);
     const deadlineAprobacion = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h desde ahora
     const codigoVinculacion = await this.generarCodigoVinculacion();
+
+    // Asegura que el usuario creador existe
+    let user = await this.prisma.user.findUnique({ where: { hash_id: body.creadorHashId } });
+    if (!user) {
+      user = await this.prisma.user.create({ data: { hash_id: body.creadorHashId } });
+    }
+
     const contract = await this.prisma.contract.create({
       data: {
         tipo: body.tipo,
@@ -141,9 +148,9 @@ export class AppController {
   async approveContract(@Param('id') id: string, @Body() body: { aprobar: boolean }) {
     const contract = await this.prisma.contract.findUnique({ where: { id: Number(id) } });
     if (!contract) throw new NotFoundException('Contrato no encontrado');
-    if (contract.estado !== 'pendiente') {
-      return { error: 'El contrato ya fue procesado' };
-    }
+    // if (contract.estado !== 'pendiente') {
+    //   return { error: 'El contrato ya fue procesado' };
+    // }
     let estado = contract.estado;
     let aprobadoContraparte = contract.aprobadoContraparte;
     if (body.aprobar) {

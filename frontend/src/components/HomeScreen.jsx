@@ -24,10 +24,6 @@ export default function HomeScreen({ onCreate, onJoin }) {
     localStorage.removeItem('wld_auth_hash');
   }, []);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [joinId, setJoinId] = useState("");
-  const [showJoinInput, setShowJoinInput] = useState(false);
-  const joinInputRef = React.useRef(null);
 
   return (
     <div className="home-main">
@@ -61,40 +57,12 @@ export default function HomeScreen({ onCreate, onJoin }) {
         <motion.button
           className="main-btn join-btn solid-join-btn"
           whileTap={{ scale: 0.93 }}
-          onClick={() => {
-            if (!showJoinInput) {
-              setShowJoinInput(true);
-              setTimeout(() => {
-                if (joinInputRef.current) joinInputRef.current.focus();
-              }, 120);
-            } else if (joinId.trim()) {
-              onJoin(joinId);
-            }
-          }}
+          onClick={() => onJoin('')}
         >
-          <span role="img" aria-label="Unirse">🔗</span>
-          <span>Unirse a Contrato</span>
+          <span role="img" aria-label="Vincular">🔗</span>
+          <span>Vincular Contrato</span>
         </motion.button>
       </div>
-
-      {showJoinInput && (
-        <motion.div
-          className="join-contract"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-        >
-          <input
-            id="joinId"
-            type="text"
-            placeholder="ID o enlace de contrato"
-            value={joinId}
-            onChange={e => setJoinId(e.target.value)}
-            ref={joinInputRef}
-            autoFocus
-          />
-        </motion.div>
-      )}
       {/* World ID Auth section */}
       <div style={{ marginTop: 30 }}>
         {/* Siempre pide el proof al montar */}
