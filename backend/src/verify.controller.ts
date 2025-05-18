@@ -92,7 +92,7 @@ export class VerifyController {
           link,
           user: {
             id: user.id,
-            worldId: user.worldId,
+            worldId: user.world_id,
             name: user.name,
             isVerified: user.isVerified,
             createdAt: user.createdAt,

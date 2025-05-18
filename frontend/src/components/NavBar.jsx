@@ -10,22 +10,24 @@ const navItems = [
     onClick: 'home',
     className: 'nav-home'
   },
+  // { 
+  //   icon: <i className="bi bi-search"></i>,
+  //   label: "Buscar", 
+  //   href: "/buscar", 
+  //   onClick: 'search' 
+  // },
   { 
-    icon: <i className="bi bi-search"></i>,
-    label: "Buscar", 
-    href: "/buscar", 
-    onClick: 'search' 
+    icon: <i className="bi bi-file-earmark-text"></i>,
+    label: "Contratos", 
+    href: "/contracts", 
+    onClick: 'contracts',
+    className: 'nav-contracts'
   },
   { 
     icon: <i className="bi bi-person"></i>,
     label: "Perfil", 
     href: "/perfil", 
     onClick: 'profile' 
-  },
-  { 
-    icon: <i className="bi bi-clock-history"></i>,
-    label: "Historial", 
-    href: "/historial" 
   },
   { 
     icon: <i className="bi bi-headset"></i>,
@@ -74,75 +76,64 @@ const styles = {
   },
 };
 
-export default function NavBar({ onSupportClick, onSearch }) {
+export default function NavBar({ onSupportClick, onSearch, onNavigate }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const activeLink = location.pathname;
   
-  // Check if current path is a profile page
+  // Check active states for different routes
   const isProfilePage = location.pathname.startsWith('/profile/');
+  const isContractsPage = location.pathname.startsWith('/contracts');
+  
+  const handleNavClick = (item) => {
+    if (item.onClick === 'support' && onSupportClick) {
+      onSupportClick();
+      return;
+    }
+    
+    if (item.onClick === 'profile') {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const userId = currentUser?.id || 'current-user-id';
+      navigate(`/profile/${userId}`);
+    } else if (item.onClick === 'home') {
+      navigate('/');
+    } else if (item.onClick === 'contracts') {
+      navigate('/contracts');
+    } else if (item.onClick === 'search' && onSearch) {
+      onSearch();
+    } else if (item.href) {
+      navigate(item.href);
+    }
+    
+    if (onNavigate) {
+      onNavigate(item.onClick || item.href);
+    }
+  };
+  
+  const isActive = (item) => {
+    if (item.href === '/perfil') return isProfilePage;
+    if (item.href === '/contracts') return isContractsPage;
+    return location.pathname === item.href;
+  };
+
   return (
     <nav style={styles.navbar}>
       {navItems.map((item) => {
-        // Special handling for profile link to match any profile URL
-        const isActive = item.href === '/perfil' 
-          ? isProfilePage 
-          : activeLink === item.href;
-        const content = (
-          <>
-            <div style={styles.navbarIcon}>{item.icon}</div>
-            <div style={styles.navbarLabel}>{item.label}</div>
-          </>
-        );
-
-        if (item.onClick) {
-          return (
-            <motion.div
-              key={item.label}
-              style={{
-                ...styles.navbarItem,
-                ...(isActive ? styles.activeItem : {})
-              }}
-              whileTap={{ scale: 0.88 }}
-              onClick={() => {
-                if (item.onClick === 'support' && onSupportClick) {
-                onSupportClick();
-              } else if (item.onClick === 'search') {
-                onSearch ? onSearch() : navigate('/buscar');
-              } else if (item.onClick === 'profile') {
-                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                const userId = currentUser?.id || 'current-user-id';
-                navigate(`/profile/${userId}`);
-              } else if (item.onClick === 'home') {
-                navigate('/');
-              }
-              }}
-            >
-              {content}
-            </motion.div>
-          );
-        }
-
+        const active = isActive(item);
+        
         return (
           <motion.div
             key={item.label}
+            style={{
+              ...styles.navbarItem,
+              ...(active ? styles.activeItem : {})
+            }}
             whileTap={{ scale: 0.88 }}
+            onClick={() => handleNavClick(item)}
           >
-            <Link
-              to={item.href}
-              style={{
-                ...styles.navbarItem,
-                ...(isActive ? styles.activeItem : {}),
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '8px 12px',
-              }}
-            >
-              {content}
-            </Link>
+            <div style={styles.navbarIcon}>
+              {item.icon}
+            </div>
+            <span style={styles.navbarLabel}>{item.label}</span>
           </motion.div>
         );
       })}

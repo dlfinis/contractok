@@ -108,35 +108,103 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Cargando...</span>
+      <div className="container py-5">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+          <p className="mt-2">Cargando perfil...</p>
         </div>
-        <p className="mt-2">Cargando perfil...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mt-5">
+      <div className="container py-5">
         <div className="alert alert-danger">
           <i className="bi bi-exclamation-triangle-fill me-2"></i>
           {error}
         </div>
-        <Link to="/" className="btn btn-primary mt-3">
-          Volver al inicio
-        </Link>
       </div>
     );
   }
 
+  const generateText = (params) => {
+    const adjectives = ["friendly", "ingenious", "creative", "original", "intelligent"];
+    const animals = ["cat", "dog", "bird", "chicken", "rabbit"];
+    const name = params.name || adjectives[Math.floor(Math.random() * adjectives.length)] + "." + animals[Math.floor(Math.random() * animals.length)];
+    const code = params.code || ('#' + (Math.random() * 10000).toFixed(0));
+    return {
+      name,
+      code
+    }
+  }
+  // Datos por defecto cuando no hay información
+  const defaultUser = {
+    name: generateText({}).name,
+    createdAt: new Date().toISOString(),
+    isVerified: true,
+    worldId: generateText({}).code,
+    id: generateText({}).code
+  };
+
+  const defaultContracts = [
+    {
+      id: 'test_contract_' + Date.now(),
+      tipo: 'Venta',
+      monto: 1000,
+      descripcion: 'Venta de un producto',
+      creadorWorldId: 'test_user_' + Date.now(),
+      contraparteWorldId: 'test_user_' + Date.now(),
+      createdAt: new Date('2025-05-10T00:00:00.000Z').toISOString(),
+      updatedAt: new Date().toISOString(),
+      estado: 'aprobado'
+    },
+    {
+      id: 'test_contract_' + Math.random().toFixed(4),
+      tipo: 'Servicio',
+      monto: 733,
+      descripcion: 'Servicio de un producto',
+      creadorWorldId: 'test_user_' + Date.now(),
+      contraparteWorldId: 'test_user_' + Date.now(),
+      createdAt: new Date('2025-05-11T00:00:00.000Z').toISOString(),
+      updatedAt: new Date().toISOString(),
+      estado: 'aprobado'
+    },
+    {
+      id: 'test_contract_' + Math.random().toFixed(4),
+      tipo: 'Venta',
+      monto: 1200,
+      descripcion: 'Venta de un producto',
+      creadorWorldId: 'test_user_' + Date.now(),
+      contraparteWorldId: 'test_user_' + Date.now(),
+      createdAt: new Date('2025-05-12T00:00:00.000Z').toISOString(),
+      updatedAt: new Date().toISOString(),
+      estado: 'pendiente'
+    },
+    {
+      id: 'test_contract_' + Math.random().toFixed(4),
+      tipo: 'Reparación',
+      monto: 35,
+      descripcion: 'Reparación de un producto',
+      creadorWorldId: 'test_user_' + Date.now(),
+      contraparteWorldId: 'test_user_' + Date.now(),
+      createdAt: new Date('2025-05-14T00:00:00.000Z').toISOString(),
+      updatedAt: new Date('2025-05-16T00:00:00.000Z').toISOString(),
+      estado: 'rechazado'
+    }
+  ];
+
+  const displayUser = contracts?.length > 0 ? user : defaultUser;
+  const displayContracts = contracts?.length > 0 ? contracts : defaultContracts;
+
   // Función segura para calcular estadísticas
   const getContractStats = () => {
     try {
-      if (!Array.isArray(contracts)) return { completed: 0, total: 0 };
+      if (!Array.isArray(displayContracts)) return { completed: 0, total: 0 };
       
-      const completed = contracts.filter(c => 
+      const completed = displayContracts.filter(c => 
         c && typeof c === 'object' && 
         (c.estado === 'aprobado' || c.estado === 'rechazado')
       ).length;
@@ -156,111 +224,124 @@ export default function ProfileScreen() {
   const successRate = contracts.length ? Math.round((completedContracts / contracts.length) * 100) : 0;
 
   return (
-    <div className="container-fluid py-1" style={{ maxWidth: '100%', overflowX: 'hidden' }}>
-      <div className="row justify-content-center">
-        <div className="col-10 col-md-8">
-          <div className="card shadow-sm mb-4">
-            <div className="card-body text-center">
+    <div className="container py-4">
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="card text-center h-100">
+            <div className="card-body d-flex flex-column">
               <div className="position-relative d-inline-block mb-3">
-                <div className="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto" 
-                     style={{ width: '20px', height: '20px', fontSize: '2.5rem' }}>
-                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                <div 
+                  className="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" 
+                  style={{ width: '120px', height: '120px' }}
+                >
+                  <i className="bi bi-person text-light" style={{ fontSize: '3rem' }}></i>
                 </div>
+                {/* {displayUser.isVerified && (
+                  <div className="position-absolute bottom-0 end-0 bg-success text-white rounded-circle p-1">
+                    <i className="bi bi-check-lg"></i>
+                  </div>
+                )} */}
               </div>
-              <h2 className="h4 mb-2">{user?.name || 'Usuario'}</h2>
-              <p className="text-muted mb-4">Miembro desde {user?.createdAt ? new Date(user?.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}</p>
+              <h4 className="mb-1">{displayUser.name || 'Usuario'}</h4>
+              <p className="text-muted mb-3">
+                <small>Miembro desde {new Date(displayUser.createdAt).toLocaleDateString()}</small>
+              </p>
               
-              <div className="row g-3 mb-4">
-                <div className="col-md-4">
-                  <div className="bg-light p-3 rounded-3 h-100">
-                    <p className="h2 mb-1">{totalContracts}</p>
-                    <p className="text-muted small mb-0">Contratos totales</p>
+              <div className="row g-3 mb-3">
+                <div className="col-3">
+                  <div className="bg-light p-2 rounded-3">
+                    <div className="h5 mb-0">{displayContracts.length}</div>
+                    <small className="text-muted">Contratos</small>
                   </div>
                 </div>
-                <div className="col-md-4">
-                  <div className="bg-light p-3 rounded-3 h-100">
-                    <p className="h2 mb-1">{completedContracts}</p>
-                    <p className="text-muted small mb-0">Completados</p>
+                <div className="col-3">
+                  <div className="bg-light p-2 rounded-3">
+                    <div className="h5 mb-0">{completedContracts}</div>
+                    <small className="text-muted">Completados</small>
                   </div>
                 </div>
-                <div className="col-md-4">
-                  <div className="bg-light p-3 rounded-3 h-100">
-                    <p className="h2 mb-1">{successRate}%</p>
-                    <p className="text-muted small mb-0">Tasa de éxito</p>
+                {/* <div className="col-3">
+                  <div className="bg-light p-2 rounded-3">
+                    <div className="h5 mb-0">{successRate}%</div>
+                    <small className="text-muted">Éxito</small>
                   </div>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted">Progreso general</span>
-                  <span className="fw-bold">{successRate}%</span>
-                </div>
-                <div className="progress mb-3" style={{ height: '8px' }}>
-                  <div 
-                    className="progress-bar bg-success" 
-                    role="progressbar" 
-                    style={{ width: `${successRate}%` }}
-                    aria-valuenow={successRate} 
-                    aria-valuemin="0" 
-                    aria-valuemax="100">
+                </div> */}
+                <div className="col-3">
+                  <div className="bg-light p-2 rounded-3">
+                    <div className="h5 mb-0 d-flex align-items-center justify-content-center">
+                      {rating.toFixed(1)} <i className="bi bi-star-fill text-warning ms-1"></i>
+                    </div>
+                    <small className="text-muted">Rating</small>
                   </div>
                 </div>
               </div>
-
-              <div className="bg-light p-3 rounded-3 mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted">Calificación:</span>
-                  <div className="text-warning">
-                    {[...Array(5)].map((_, i) => (
-                      <i key={i} className={`bi ${i < rating ? 'bi-star-fill' : 'bi-star'}`}></i>
-                    ))}
-                  </div>
-                </div>
-                <p className="small text-muted mb-0">
-                  Basado en {completedContracts} {completedContracts === 1 ? 'contrato' : 'contratos'} completados
-                </p>
+              
+              <div className="d-flex justify-content-center gap-2 mt-auto">
+                <button className="btn btn-outline-primary btn-sm">
+                  <i className="bi bi-pencil me-1"></i> Editar
+                </button>
+                <button className="btn btn-outline-secondary btn-sm">
+                  <i className="bi bi-share me-1"></i> Compartir
+                </button>
               </div>
             </div>
           </div>
-
-          <div className="card shadow-sm mb-4">
-            <div className="card-header bg-white">
-              <h3 className="h5 mb-0">Historial de Contratos</h3>
-            </div>
-            <div className="card-body p-0">
-              {contractsError && (
-                <div className="alert alert-warning m-3">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  {contractsError}
-                </div>
-              )}
-              {contracts.length === 0 ? (
-                <div className="text-center p-4 text-muted">
-                  <i className="bi bi-inbox mb-2" style={{ fontSize: '2rem' }}></i>
-                  <p className="mb-0">No hay contratos para mostrar</p>
+        </div>
+        
+        {/* Columna derecha - Contratos */}
+        <div className="col-md-8">
+          <div className="card h-100">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h5 className="mb-0">Contratos Recientes</h5>
+                <Link to="/contracts" className="btn btn-sm btn-outline-primary">
+                  Ver todos
+                </Link>
+              </div>
+              
+              {displayContracts.length === 0 ? (
+                <div className="text-center p-5">
+                  <i className="bi bi-file-earmark-text text-muted" style={{ fontSize: '3rem', opacity: 0.5 }}></i>
+                  <h5 className="mt-3">No hay contratos</h5>
+                  <p className="text-muted mb-4">Aún no has creado ni recibido contratos</p>
+                  <Link to="/new-contract" className="btn btn-primary">
+                    <i className="bi bi-plus-circle me-2"></i>Crear primer contrato
+                  </Link>
                 </div>
               ) : (
-                <ul className="list-group list-group-flush">
-                  {contracts.map((contract) => (
-                    <li key={contract.id} className="list-group-item">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <h6 className="mb-1">{contract.nombre || 'Contrato sin nombre'}</h6>
-                          <p className="mb-1 small text-muted">
-                            {new Date(contract.createdAt).toLocaleDateString()}
-                          </p>
-                          <span className={`badge ${getStatusBadgeClass(contract.estado)}`}>
-                            {contract.estado || 'pendiente'}
-                          </span>
-                        </div>
-                        <div className="text-end">
-                          <div className="fw-bold">${parseFloat(contract.monto || 0).toLocaleString()}</div>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <div className="table-responsive">
+                  <table className="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Contrato</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {displayContracts.slice(0, 5).map((contract) => (
+                        <tr key={contract.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/contracts/${contract.id}`)}>
+                          <td>
+                            <div className="fw-medium">{contract.descripcion || 'Contrato sin nombre'}</div>
+                            <small className="text-muted">{contract.tipo || 'Sin tipo'}</small>
+                          </td>
+                          <td className="text-nowrap">${parseFloat(contract.monto || 0).toLocaleString()}</td>
+                          <td>
+                            <span className={`badge ${getStatusBadgeClass(contract.estado)}`}>
+                              {contract.estado || 'pendiente'}
+                            </span>
+                          </td>
+                          <td className="text-nowrap">
+                            <small className="text-muted">
+                              {new Date(contract.createdAt).toLocaleDateString()}
+                            </small>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>

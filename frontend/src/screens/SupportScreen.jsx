@@ -143,6 +143,7 @@ export default function SupportScreen({ onClose }) {
       });
       setUserMsg('Usuario de prueba creado correctamente');
       console.log('Usuario creado:', response.data);
+      localStorage.setItem('currentUser', JSON.stringify(response.data));
     } catch (err) {
       setUserMsg('Error al crear usuario: ' + (err.response?.data?.error || err.message));
       console.error('Error al crear usuario:', err);
@@ -242,9 +243,9 @@ export default function SupportScreen({ onClose }) {
     try {
       const userData = {
         id: user.id,
-        hashId: user.hashId,
+        world_id: user.world_id,
         name: user.name,
-        savedAt: new Date().toISOString()
+        createdAt: user.createdAt || new Date().toISOString()
       };
       
       // Guardar en localStorage
@@ -393,12 +394,12 @@ export default function SupportScreen({ onClose }) {
                   )
                 },
                 { 
-                  key: 'hashId', 
-                  title: 'Hash ID',
+                  key: 'worldId', 
+                  title: 'World ID',
                   className: 'text-monospace',
                   render: (item) => (
                     <span className="d-inline-block text-truncate" style={{ maxWidth: '100%' }}>
-                      {item.hashId || '-'}
+                      {item.world_id || '-'}
                     </span>
                   )
                 },
@@ -417,7 +418,7 @@ export default function SupportScreen({ onClose }) {
                 }
               ]}
               rowKey="id"
-              rowClass={(item) => item.hashId?.startsWith('test_') ? 'table-warning' : ''}
+              rowClass={(item) => item.worldId?.startsWith('test_') ? 'table-warning' : ''}
             />
           ) : (
             <DataTable

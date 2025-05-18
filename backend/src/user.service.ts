@@ -8,14 +8,14 @@ export class UserService {
   async findOrCreateUser(worldId: string, data: { name?: string; isVerified?: boolean } = {}) {
     // Buscar usuario por worldId
     let user = await this.prisma.user.findUnique({
-      where: { worldId },
+      where: { world_id: worldId },
     });
 
     // Si no existe, crearlo
     if (!user) {
       user = await this.prisma.user.create({
         data: {
-          worldId,
+          world_id: worldId,
           name: data.name || `Usuario_${worldId.substring(0, 8)}`,
           isVerified: data.isVerified !== undefined ? data.isVerified : true,
         },
@@ -36,7 +36,7 @@ export class UserService {
 
   async getUserByWorldId(worldId: string) {
     return this.prisma.user.findUnique({
-      where: { worldId },
+      where: { world_id: worldId },
     });
   }
 }

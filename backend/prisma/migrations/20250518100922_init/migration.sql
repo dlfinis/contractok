@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "worldId" TEXT NOT NULL,
+    "world_id" TEXT NOT NULL,
     "name" TEXT,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -44,7 +44,7 @@ CREATE TABLE "Contract" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_worldId_key" ON "User"("worldId");
+CREATE UNIQUE INDEX "User_world_id_key" ON "User"("world_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "WorldIDLink_nullifier_hash_key" ON "WorldIDLink"("nullifier_hash");
@@ -53,7 +53,7 @@ CREATE UNIQUE INDEX "WorldIDLink_nullifier_hash_key" ON "WorldIDLink"("nullifier
 CREATE UNIQUE INDEX "Contract_codigoVinculacion_key" ON "Contract"("codigoVinculacion");
 
 -- AddForeignKey
-ALTER TABLE "Contract" ADD CONSTRAINT "Contract_creadorWorldId_fkey" FOREIGN KEY ("creadorWorldId") REFERENCES "User"("worldId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Contract" ADD CONSTRAINT "Contract_creadorWorldId_fkey" FOREIGN KEY ("creadorWorldId") REFERENCES "User"("world_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Contract" ADD CONSTRAINT "Contract_contraparteWorldId_fkey" FOREIGN KEY ("contraparteWorldId") REFERENCES "User"("worldId") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Contract" ADD CONSTRAINT "Contract_contraparteWorldId_fkey" FOREIGN KEY ("contraparteWorldId") REFERENCES "User"("world_id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -37,24 +37,6 @@ export default function BackendHealth() {
     setLoading(false);
   };
 
-  const createUser = async () => {
-    setLoading(true);
-    setCreateRes(null);
-    const name = "Test User";
-    try {
-      const res = await axios.post('/api/user', {
-        worldId: 'default_nullifier'+Date.now(), name
-      });
-      const data = await res.data;
-      setCreateRes(data);
-      checkHealth();
-      localStorage.setItem('currentUser', JSON.stringify(data));
-    } catch (e) {
-      setCreateRes({ error: e.message });
-    }
-    setLoading(false);
-  };
-
   return (
     <div style={{ padding: 18 }}>
       <h2>Salud del Backend</h2>
@@ -68,9 +50,6 @@ export default function BackendHealth() {
         <h3>Estado del Backend</h3>
         <button onClick={checkHealth} disabled={loading} style={{marginRight: 8}}>
           Probar /health
-        </button>
-        <button onClick={createUser} disabled={loading}>
-          Crear usuario de prueba
         </button>
         <div style={{marginTop: 16, fontFamily: 'monospace'}}>
           {status && (

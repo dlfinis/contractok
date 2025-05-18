@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import InfoScreen from '../components/InfoScreen';
 
 const tipos = [
@@ -11,45 +12,88 @@ const tipos = [
 ];
 
 export default function ContractCreateScreen({ onCreated }) {
-  const [showToast, setShowToast] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [tipo, setTipo] = useState('servicio');
   const [monto, setMonto] = useState('');
   const [plazoEntrega, setPlazoEntrega] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [creadorId, setCreadorId] = useState(''); // placeholder, debe venir del login
   const [contraparteId, setContraparteId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [contractCreated, setContractCreated] = useState(false);
+  const [contractData, setContractData] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    
     try {
-      // Obtener nullifier_hash de localStorage o valor por defecto
-      let nullifier_hash = 'default_nullifier';
-      try {
-        const stored = localStorage.getItem('wld_nullifier_hash');
-        if (stored) nullifier_hash = stored;
-      } catch (e) {}
-      const res = await axios.post('/api/contracts', {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (!currentUser?.world_id) {
+        throw new Error('No se pudo obtener la información del usuario');
+      }
+
+      console.log('Sending contract data:', {
         tipo,
         monto: parseFloat(monto),
         plazoEntrega,
         descripcion,
-        creadorHashId: nullifier_hash,
-        contraparteHashId: contraparteId || undefined,
+        creadorWorldId: currentUser.world_id,
+        contraparteWorldId: contraparteId || undefined,
       });
-      if (onCreated) {
-        onCreated(res.data);
+
+      const response = await axios.post('/api/contracts', {
+        tipo,
+        monto: parseFloat(monto),
+        plazoEntrega,
+        descripcion,
+        creadorWorldId: currentUser.world_id,
+        contraparteWorldId: contraparteId || undefined,
+      });
+
+      console.log('Contract created:', response.data);
+      
+      if (!response.data?.codigoVinculacion) {
+        throw new Error('No se recibió un código de vinculación válido');
       }
+      
+      // Update the state to show success screen
+      setContractData(response.data);
+      setContractCreated(true);
+      
+      // Don't call onCreated here to prevent navigation
+      // onCreated will be called when user clicks 'Ver mis contratos'
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al crear contrato');
+      console.error('Error creating contract:', err);
+      setError(err.response?.data?.error || err.message || 'Error al crear el contrato');
     } finally {
       setLoading(false);
     }
   };
+
+  if (contractCreated && contractData?.codigoVinculacion) {
+    return (
+      <InfoScreen 
+        title="¡Contrato Creado Éxitosamente!"
+        code={contractData.codigoVinculacion}
+        icon={<i className="bi bi-check-circle-fill text-success" style={{fontSize: '4rem'}}></i>}
+        description="El contrato ha sido creado éxitosamente."
+        actions={
+          [
+            {
+              label: 'Ver mis contratos',
+              icon: <i className="bi bi-list"></i>,
+              variant: 'secondary',
+              onClick: () => {
+                  navigate('/contracts');
+              }
+            },
+          ]
+        }
+      />
+    );
+  }
 
   return (
     <div className="container mt-4 position-relative" style={{maxWidth: 480, minHeight: '92vh'}}>
@@ -192,20 +236,7 @@ export default function ContractCreateScreen({ onCreated }) {
             </div>
           </div>
 
-
-          {/* Toast de éxito */}
-          {showToast && (
-            <div className="position-fixed bottom-0 end-0 p-3" style={{zIndex: 1200}}>
-              <div className="toast show align-items-center text-bg-success border-0 animate__animated animate__fadeInUp animate__faster" role="alert">
-                <div className="d-flex align-items-center">
-                  <i className="bi bi-check-circle-fill fs-4 me-2"></i>
-                  <div className="toast-body p-2 pe-3 small">
-                    ¡Contrato creado exitosamente!
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Error message */}
           {error && <div className="alert alert-danger mt-3 text-center">{error}</div>}
         </div>
       </div>

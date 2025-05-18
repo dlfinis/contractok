@@ -9,12 +9,12 @@ generator client {
 }
 
 model User {
-  id    Int  @id @default(autoincrement())
-  worldId String @unique
-  name  String?
+  id        Int       @id @default(autoincrement())
+  world_id   String    @unique
+  name      String?
   isVerified Boolean @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime?
   contractsCreated Contract[] @relation("CreatedContracts")
   contractsReceived Contract[] @relation("ReceivedContracts")
 }
@@ -38,14 +38,14 @@ model Contract {
   descripcion     String?
   estado          String   // pendiente, aprobado, rechazado, completado
   creadorWorldId  String
-  creador         User     @relation("CreatedContracts", fields: [creadorWorldId], references: [worldId])
+  creador         User @relation("CreatedContracts", fields: [creadorWorldId], references: [world_id])
   contraparteWorldId String?
-  contraparte     User?    @relation("ReceivedContracts", fields: [contraparteWorldId], references: [worldId])
+  contraparte     User? @relation("ReceivedContracts", fields: [contraparteWorldId], references: [world_id])
   aprobadoCreador     Boolean @default(false)
   aprobadoContraparte Boolean @default(false)
   deadlineAprobacion  DateTime?
   createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  updatedAt        DateTime?
 }
 
 datasource db {
