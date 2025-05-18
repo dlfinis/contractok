@@ -5,13 +5,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     allowedHosts: [
-      '124a-190-9-183-30.ngrok-free.app'
+      '8556-190-9-183-30.ngrok-free.app'
     ],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/api/, ''),
+        //rewrite: path => path.replace(/^\/api/, ''),
       },
     },
   },

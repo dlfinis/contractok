@@ -1,7 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import WorldIDLogin from "./WorldIDLogin";
 
 export default function HomeScreen({ onCreate, onJoin }) {
+  // Guardar el proof en el estado local y en localStorage
+  const [authHash, setAuthHash] = useState(null);
+
+  // Función para manejar autenticación exitosa
+  const handleAuth = (hash) => {
+    setAuthHash(hash);
+    localStorage.setItem('wld_auth_hash', hash);
+  };
+
+  // Permitir cerrar sesión
+  const handleLogout = () => {
+    setAuthHash(null);
+    localStorage.removeItem('wld_auth_hash');
+  };
+
+  // Al montar, limpiar el proof para forzar autenticación cada vez
+  useEffect(() => {
+    setAuthHash(null);
+    localStorage.removeItem('wld_auth_hash');
+  }, []);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [joinId, setJoinId] = useState("");
   const [showJoinInput, setShowJoinInput] = useState(false);
   const joinInputRef = React.useRef(null);
@@ -14,38 +37,15 @@ export default function HomeScreen({ onCreate, onJoin }) {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, delay: 0.2 }}
       >
-        {/* Opciones de logo SVG para ContratoYa:
-            1. Documento con firma (descomenta para usar)
-            2. Apretón de manos minimalista (descomenta para usar)
-            3. Bolígrafo firmando documento (descomenta para usar)
-         */}
-        {/* Opción 1: Documento con firma */}
-        <div className="logo-circle" style={{background: 'linear-gradient(135deg, #FFD700 0%, #7F5AF0 100%)', position: 'relative'}}>
-              <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="10" width="34" height="34" rx="7" fill="#fff" stroke="#0A2E5A" strokeWidth="2.5"/>
-                <path d="M16 22H38M16 28H38" stroke="#7F5AF0" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M19 36C22 34 23.5 38 26 36C28.5 34 30 38 34 36" stroke="#00A878" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              </svg>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}>
+          <img
+            src="/images/logo.png"
+            alt="Logo ContratosYa"
+            style={{ width: 64, height: 64, objectFit: 'contain', display: 'block' }}
+          />
         </div>
-        {/* Opción 2: Apretón de manos minimalista */}
-        {/* <div className="logo-circle" style={{background: 'linear-gradient(135deg, #FFD700 0%, #7F5AF0 100%)', position: 'relative'}}>
-          <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="27" cy="27" rx="24" ry="24" fill="#fff" fillOpacity="0.95"/>
-            <path d="M16 32L24 40C25 41 27 41 28 40L38 30C39 29 39 27 38 26L32 20C31 19 29 19 28 20L18 30C17 31 17 32 18 33L22 37" stroke="#0A2E5A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="#fff"/>
-          </svg>
-        </div> */}
-        {/* Opción 3: Bolígrafo firmando documento */}
-        {/* <div className="logo-circle" style={{background: 'linear-gradient(135deg, #FFD700 0%, #7F5AF0 100%)', position: 'relative'}}>
-          <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="10" y="10" width="34" height="34" rx="7" fill="#fff" stroke="#0A2E5A" strokeWidth="2.5"/>
-            <path d="M16 22H38M16 28H38" stroke="#7F5AF0" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M36 38L44 44" stroke="#0A2E5A" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M42 42L40 40L44 44Z" fill="#FFD700" stroke="#0A2E5A" strokeWidth="1"/>
-            <path d="M19 36C22 34 23.5 38 26 36C28.5 34 30 38 34 36" stroke="#00A878" strokeWidth="2" strokeLinecap="round" fill="none"/>
-          </svg>
-        </div> */}
         <h2 style={{ fontFamily: "var(--logo-font), 'Sora', serif", fontWeight: 800 }}>ContratoYa</h2>
-        <p className="subtitle" style={{ fontFamily: "var(--main-font), 'Quicksand', Arial, sans-serif" }}>Contratos instantáneos con garantía y arbitraje</p>
+        <p className="subtitle" style={{ fontFamily: "var(--main-font), 'Quicksand', Arial, sans-serif" }}>Contratos seguros al momento</p>
       </motion.div>
 
       {/* Para cambiar de logo, comenta/descomenta la opción deseada arriba */}
@@ -59,7 +59,7 @@ export default function HomeScreen({ onCreate, onJoin }) {
           <span>Crear Contrato</span>
         </motion.button>
         <motion.button
-          className="main-btn join-btn"
+          className="main-btn join-btn solid-join-btn"
           whileTap={{ scale: 0.93 }}
           onClick={() => {
             if (!showJoinInput) {
@@ -95,6 +95,21 @@ export default function HomeScreen({ onCreate, onJoin }) {
           />
         </motion.div>
       )}
+      {/* World ID Auth section */}
+      <div style={{ marginTop: 30 }}>
+        {/* Siempre pide el proof al montar */}
+        {!authHash && (
+          <WorldIDLogin auto={true} onAuth={handleAuth} />
+        )}
+        {authHash && (
+          <div style={{ textAlign: 'center', marginTop: 12 }}>
+            <span style={{ color: '#00A878', fontWeight: 700, fontSize: 16 }}>
+              ✅ Usuario autenticado con World ID
+            </span>
+
+          </div>
+        )}
+      </div>
     </div>
   );
 }

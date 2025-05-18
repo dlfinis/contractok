@@ -124,9 +124,19 @@ body, html, #root {
 }
 
 .join-btn {
+  /* El gradiente solo para el join-btn por defecto */
   background: linear-gradient(135deg, #00A878 0%, #6decc2 100%);
   border: 2.5px solid #00A878;
 }
+
+.solid-join-btn {
+  background: #eecd11 !important;
+  color: #fff !important;
+  border: 2.5px solid #d8b807 !important;
+  box-shadow: none !important;
+}
+
+
 
 .main-btn::after {
   content: '';

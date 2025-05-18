@@ -78,3 +78,5 @@ contracts/typechain/
 **/cache/
 **/typechain/
 **/.vercel
+
+llms-full.txt

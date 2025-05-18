@@ -1,0 +1,97 @@
+.contract-create-container {
+  max-width: 410px;
+  margin: 32px auto 0 auto;
+  padding: 24px 20px 18px 20px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px 0 rgba(10,46,90,0.09);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.contract-create-container h2 {
+  text-align: center;
+  color: #0A2E5A;
+  margin-bottom: 8px;
+}
+.contract-create-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.contract-create-container label {
+  font-weight: 500;
+  color: #0A2E5A;
+  margin-bottom: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.contract-create-container input,
+.contract-create-container textarea,
+.contract-create-container select {
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(10,46,90,0.06);
+  border: 1.5px solid #e5e7ef;
+  margin-bottom: 18px;
+  font-size: 1.07em;
+  padding: 13px 14px;
+  width: 100%;
+  border-radius: 9px;
+  color: #0A2E5A;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.contract-create-container input:focus,
+.contract-create-container textarea:focus,
+.contract-create-container select:focus {
+  border: 1.5px solid #00A878;
+}
+.contract-create-container .fee-info {
+  background: #e6fff5;
+  color: #00A878;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 1em;
+  margin-bottom: 2px;
+}
+.contract-create-container button[type="submit"] {
+  background: linear-gradient(90deg,#00A878 60%,#FFD700 100%);
+  color: #0A2E5A;
+  font-weight: 700;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 7px;
+  padding: 12px 0;
+  margin-top: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 6px 0 rgba(10,46,90,0.09);
+  transition: background 0.15s;
+}
+.contract-create-container .success {
+  background: #e6fff5;
+  color: #00A878;
+  border-radius: 7px;
+  padding: 12px 10px;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+.contract-create-container .error {
+  background: #ffe6e6;
+  color: #c00;
+  border-radius: 7px;
+  padding: 10px 10px;
+  margin-top: 10px;
+  text-align: center;
+  font-size: 1em;
+  font-weight: 500;
+}
+@media (max-width: 520px) {
+  .contract-create-container {
+    max-width: 98vw;
+    padding: 15px 4vw;
+  }
+}

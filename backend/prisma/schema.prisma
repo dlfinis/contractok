@@ -1,17 +1,52 @@
-// Prisma schema for PostgreSQL
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
+  id    Int  @id @default(autoincrement())
+  hash_id String @unique
   name  String?
   createdAt DateTime @default(now())
+  contractsCreated Contract[] @relation("CreatedContracts")
+  contractsReceived Contract[] @relation("ReceivedContracts")
+}
+
+model WorldIDLink {
+  id                Int      @id @default(autoincrement())
+  nullifier_hash    String   @unique
+  action            String
+  signal            String?
+  verification_level String?
+  linkedAt          DateTime @default(now())
+}
+
+model Contract {
+  codigoVinculacion String @unique @db.Char(4)
+  id              Int      @id @default(autoincrement())
+  tipo            String  // servicio/venta/reparacion
+  monto           Float
+  fee             Float
+  plazoEntrega    DateTime
+  descripcion     String?
+  estado          String   // pendiente, aprobado, rechazado, completado
+  creadorHashId       String
+  creador         User     @relation("CreatedContracts", fields: [creadorHashId], references: [hash_id])
+  contraparteHashId   String?
+  contraparte     User?    @relation("ReceivedContracts", fields: [contraparteHashId], references: [hash_id])
+  aprobadoCreador     Boolean @default(false)
+  aprobadoContraparte Boolean @default(false)
+  deadlineAprobacion  DateTime?
+  creadoEn        DateTime @default(now())
+  actualizadoEn   DateTime @updatedAt
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
