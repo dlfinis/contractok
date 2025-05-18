@@ -248,7 +248,7 @@ export default function SupportScreen({ onClose }) {
       };
       
       // Guardar en localStorage
-      localStorage.setItem(`user_${user.id}`, JSON.stringify(userData));
+      localStorage.setItem('currentUser', JSON.stringify(userData));
       
       // Mostrar mensaje de éxito
       setUserMsg(`Usuario ${user.name || user.id} guardado en localStorage`);
