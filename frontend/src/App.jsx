@@ -6,6 +6,7 @@ import ContractLinkScreen from "./screens/ContractLinkScreen";
 import ContractDetailScreen from "./screens/ContractDetailScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ContractsListScreen from "./screens/ContractsListScreen";
+import ConflictResolutionScreen from "./screens/ConflictResolutionScreen";
 import InitialAnimation from "./components/InitialAnimation";
 import HomeScreen from "./components/HomeScreen";
 import NavBar from "./components/NavBar";
@@ -96,6 +97,7 @@ export default function App() {
               />
               <Route path="/contracts" element={<ContractsListScreen />} />
               <Route path="/contracts/:id" element={<ContractDetailScreen />} />
+              <Route path="/contracts/resolve-conflict/:id" element={<ConflictResolutionScreen />} />
               <Route path="/profile/:id" element={<ProfileScreen />} />
               <Route path="/create" element={
                 <div className="position-relative">

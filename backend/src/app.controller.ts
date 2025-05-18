@@ -1,13 +1,14 @@
 import { 
   Controller, 
   Get, 
-  Post, 
+  Post,
+  Patch, 
   Body, 
   Param, 
   Delete,
   NotFoundException, 
   ForbiddenException,
-  InternalServerErrorException 
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { Prisma } from '@prisma/client';
@@ -294,6 +295,79 @@ export class AppController {
       const updatedContracts = await this.prisma.$queryRaw<any[]>`
         UPDATE "Contract" 
         SET estado = ${newStatus}, "actualizadoEn" = NOW()
+        WHERE id = ${parseInt(id)}
+        RETURNING *
+      `;
+      
+      if (updatedContracts.length === 0) {
+        throw new Error('No se pudo actualizar el contrato');
+      }
+      
+      // Obtenemos la información completa del contrato con los usuarios relacionados
+      const updatedContract = await this.prisma.$queryRaw<any[]>`
+        SELECT c.*, 
+               u1."world_id" as "creadorWorldId", u1.name as "creador_name",
+               u2."world_id" as "contraparteWorldId", u2.name as "contraparte_name"
+        FROM "Contract" c
+        LEFT JOIN "User" u1 ON c."creadorWorldId" = u1."world_id"
+        LEFT JOIN "User" u2 ON c."contraparteWorldId" = u2."world_id"
+        WHERE c.id = ${parseInt(id)}
+        LIMIT 1
+      `;
+      
+      return updatedContract[0];
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  @Post('/contracts/:id/start-arbitration')
+  async startArbitration(@Param('id') id: string) {
+    try {
+      // Primero verificamos que el contrato existe
+      const contract = await this.prisma.contract.findUnique({
+        where: { id: parseInt(id) },
+      });
+
+      if (!contract) {
+        throw new NotFoundException('Contrato no encontrado');
+      }
+
+      // Actualizamos el estado a 'arbitraje'
+      const updatedContract = await this.prisma.contract.update({
+        where: { id: parseInt(id) },
+        data: {
+          estado: 'arbitraje',
+          updatedAt: new Date(),
+        },
+        include: {
+          creador: {
+            select: { worldId: true, name: true }
+          },
+          contraparte: {
+            select: { worldId: true, name: true }
+          }
+        }
+      });
+
+      // Aquí podrías agregar lógica adicional como:
+      // - Notificar a las partes
+      // - Crear un caso de arbitraje
+      // - Iniciar cualquier otro proceso necesario
+
+      return updatedContract;
+    } catch (e) {
+      console.error('Error en startArbitration:', e);
+      throw new InternalServerErrorException('Error al iniciar el proceso de arbitraje');
+    }
+  }
+
+  @Patch('/contracts/:id/status')
+  async updateContractStatus(@Param('id') id: string, @Body() body: { estado: string }) {
+    try {
+      const updatedContracts = await this.prisma.$queryRaw<any[]>`
+        UPDATE "Contract"
+        SET estado = ${body.estado}, "updatedAt" = NOW()
         WHERE id = ${parseInt(id)}
         RETURNING *
       `;

@@ -18,10 +18,12 @@ export default function HomeScreen({ onCreate, onJoin }) {
     localStorage.removeItem('wld_auth_hash');
   };
 
-  // Al montar, limpiar el proof para forzar autenticación cada vez
+  // Al montar, verificar si ya hay una sesión activa
   useEffect(() => {
-    setAuthHash(null);
-    localStorage.removeItem('wld_auth_hash');
+    const savedAuthHash = localStorage.getItem('wld_auth_hash');
+    if (savedAuthHash) {
+      setAuthHash(savedAuthHash);
+    }
   }, []);
 
 

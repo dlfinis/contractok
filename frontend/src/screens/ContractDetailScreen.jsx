@@ -9,6 +9,32 @@ const ContractDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const getTipoIcon = (tipo) => {
+    switch(tipo?.toLowerCase()) {
+      case 'servicio':
+        return '⚙️';
+      case 'venta':
+        return '💰';
+      case 'reparacion':
+        return '🛠️';
+      default:
+        return '📄';
+    }
+  };
+
+  const getTipoLabel = (tipo) => {
+    switch(tipo?.toLowerCase()) {
+      case 'servicio':
+        return 'Servicio';
+      case 'venta':
+        return 'Venta';
+      case 'reparacion':
+        return 'Reparación';
+      default:
+        return tipo || 'Sin tipo';
+    }
+  };
+
   useEffect(() => {
     const fetchContract = async () => {
       try {
@@ -74,7 +100,13 @@ const ContractDetailScreen = () => {
           <h5 className="card-title">{contract.descripcion || 'Contrato sin título'}</h5>
           <div className="row mb-3">
             <div className="col-md-6">
-              <p className="mb-1"><strong>Tipo:</strong> {contract.tipo || 'No especificado'}</p>
+              <p className="mb-1 d-flex align-items-center">
+                <strong className="me-2">Tipo:</strong>
+                <span className="d-inline-flex align-items-center">
+                  <span className="me-1">{getTipoIcon(contract.tipo)}</span>
+                  {getTipoLabel(contract.tipo)}
+                </span>
+              </p>
               <p className="mb-1"><strong>Monto:</strong> ${parseFloat(contract.monto || 0).toLocaleString()}</p>
               <p className="mb-1">
                 <strong>Estado:</strong>{' '}
@@ -107,7 +139,6 @@ const ContractDetailScreen = () => {
   );
 };
 
-// Helper function to get badge class based on status
 const getStatusBadgeClass = (status) => {
   switch ((status || '').toLowerCase()) {
     case 'activo':

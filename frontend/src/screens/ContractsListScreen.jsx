@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -9,7 +10,61 @@ export default function ContractsListScreen() {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
+
+  const updateContractStatus = async (contractId, newStatus) => {
+    // if (!window.confirm(`¿Estás seguro de que deseas cambiar el estado del contrato a "${newStatus}"?`)) {
+    //   return;
+    // }
+
+    try {
+      setIsUpdating(true);
+      await axios.patch(`/api/contracts/${contractId}/status`, { 
+        estado: newStatus 
+      });
+      
+      // Actualizar el estado local
+      setContracts(contracts.map(contract => 
+        contract.id === contractId 
+          ? { ...contract, estado: newStatus } 
+          : contract
+      ));
+      
+      //toast.success(`El contrato ha sido actualizado a "${newStatus}"`);
+    } catch (error) {
+      console.error(`Error al actualizar el estado del contrato a "${newStatus}":`, error);
+      toast.error('No se pudo actualizar el estado del contrato');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const getTipoIcon = (tipo) => {
+    switch(tipo?.toLowerCase()) {
+      case 'servicio':
+        return '⚙️';
+      case 'venta':
+        return '💰';
+      case 'reparacion':
+        return '🛠️';
+      default:
+        return '📄';
+    }
+  };
+
+  const getTipoLabel = (tipo) => {
+    switch(tipo?.toLowerCase()) {
+      case 'servicio':
+        return 'Servicio';
+      case 'venta':
+        return 'Venta';
+      case 'reparacion':
+        return 'Reparación';
+      default:
+        return tipo || 'Sin tipo';
+    }
+  };
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -28,8 +83,8 @@ export default function ContractsListScreen() {
         setError('');
       } catch (err) {
         console.error('Error fetching contracts:', err);
-        setError('No se pudieron cargar los contratos');
-        toast.error('Error al cargar los contratos');
+        //setError('No se pudieron cargar los contratos');
+        //toast.error('Error al cargar los contratos');
         setContracts([]); // Ensure contracts is always an array
       } finally {
         setLoading(false);
@@ -40,6 +95,7 @@ export default function ContractsListScreen() {
   }, []);
 
   const handleResolveConflict = (contractId) => {
+    console.log('From list contractId', contractId);
     navigate(`/contracts/resolve-conflict/${contractId}`);
   };
 
@@ -82,7 +138,7 @@ export default function ContractsListScreen() {
   }
 
   return (
-    <div className="container py-4">
+    <div className="container-fluid py-4 px-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Mis Contratos</h2>
         <Link to="/create" className="btn btn-primary">
@@ -100,16 +156,16 @@ export default function ContractsListScreen() {
           </Link>
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-hover mb-0">
+        <div className="table-responsive" style={{ width: '100%' }}>
+          <table className="table table-hover mb-0 w-100">
             <thead className="table-light">
               <tr>
-                <th>Contrato</th>
-                <th>Cod.Vinc.</th>
-                <th>Monto</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Op.</th>
+                <th style={{ width: '30%' }}>Contrato</th>
+                <th style={{ width: '15%' }}>Cod.Vinc.</th>
+                <th style={{ width: '10%' }}>Monto</th>
+                <th style={{ width: '15%' }}>Estado</th>
+                <th style={{ width: '15%' }}>Fecha</th>
+                <th style={{ width: '15%' }}>Op.</th>
               </tr>
             </thead>
             <tbody>
@@ -119,31 +175,53 @@ export default function ContractsListScreen() {
                     <div className="fw-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {contract.descripcion ? contract.descripcion.substring(0, 12) + (contract.descripcion.length > 12 ? '...' : '') : 'Contrato sin nombre'}
                     </div>
-                    <small className="text-muted">{contract.tipo || 'Sin tipo'}</small>
+                    <small className="text-muted d-flex align-items-center gap-1">
+                      <span>{getTipoIcon(contract.tipo)}</span>
+                      <span className="ms-1">{getTipoLabel(contract.tipo)}</span>
+                    </small>
                   </td>
-                  <td className="text-nowrap">{contract.codigoVinculacion}</td>
+                  <td className="text-nowrap small text-muted">{contract.codigoVinculacion}</td>
                   <td className="text-nowrap">${parseFloat(contract.monto || 0).toLocaleString()}</td>
                   <td>
                     <span className={`badge ${getStatusBadgeClass(contract.estado)}`}>
                       {contract.estado || 'pendiente'}
                     </span>
                   </td>
-                  <td className="text-nowrap">
+                  <td className="text-nowrap small text-muted">
                     {contract.createdAt ? new Date(contract.createdAt).toLocaleDateString() : 'N/A'}
                   </td>
                   <td>
                     <div className="btn-group btn-group-sm">
                       <Link 
                         to={`/contracts/${contract.id}`} 
-                        className="btn btn-outline-primary"
+                        className="btn btn-sm btn-outline-primary"
                         title="Ver detalles"
                       >
                         <i className="bi bi-eye"></i>
                       </Link>
-                      {contract.estado?.toLowerCase() === 'en disputa' && (
+                      {contract.estado?.toLowerCase() !== 'pendiente' && (
+                        <button
+                          onClick={() => updateContractStatus(contract.id, 'pendiente')}
+                          className="btn btn-sm btn-outline-secondary"
+                          title="Marcar como pendiente"
+                          disabled={isUpdating}
+                        >
+                          <i className="bi bi-hourglass"></i>
+                        </button>
+                      )}
+                      {contract.estado?.toLowerCase() !== 'disputa' ? (
+                        <button
+                          onClick={() => updateContractStatus(contract.id, 'disputa')}
+                          className="btn btn-sm btn-outline-warning"
+                          title="Marcar como en disputa"
+                          disabled={isUpdating}
+                        >
+                          <i className="bi bi-exclamation-triangle"></i>
+                        </button>
+                      ) : (
                         <button
                           onClick={() => handleResolveConflict(contract.id)}
-                          className="btn btn-outline-warning"
+                          className="btn btn-sm btn-outline-warning"
                           title="Resolver conflicto"
                         >
                           <i className="bi bi-shield-check"></i>

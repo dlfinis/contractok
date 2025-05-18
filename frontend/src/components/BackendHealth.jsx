@@ -9,6 +9,10 @@ export default function BackendHealth() {
     localStorage.removeItem('wld_auth_hash');
     localStorage.removeItem('wld_nullifier_hash');
     localStorage.removeItem('wld_backend_authed');
+    localStorage.removeItem('wld_merkle_root');
+    localStorage.removeItem('wld_verification_level');
+    localStorage.removeItem('wld_signal_hash');
+    localStorage.removeItem('currentUser');
     alert('Datos de autenticación World ID borrados.');
     window.location.reload(); // Refresca la pantalla para limpiar cualquier estado
   };

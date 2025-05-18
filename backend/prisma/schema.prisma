@@ -36,7 +36,7 @@ model Contract {
   fee             Float
   plazoEntrega    DateTime
   descripcion     String?
-  estado          String   // pendiente, aprobado, rechazado, completado
+  estado          String   // pendiente, aprobado, rechazado, completado, disputa, arbitraje
   creadorWorldId  String
   creador         User @relation("CreatedContracts", fields: [creadorWorldId], references: [world_id])
   contraparteWorldId String?

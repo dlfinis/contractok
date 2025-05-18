@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import InfoScreen from '../components/InfoScreen';
 
 const tipos = [
-  { value: 'servicio', label: 'Servicio' },
-  { value: 'venta', label: 'Venta' },
-  { value: 'reparacion', label: 'Reparación' },
+  { value: 'servicio', label: ' ⚙️ Servicio' },
+  { value: 'venta', label: ' 💰 Venta' },
+  { value: 'reparacion', label: ' 🛠️ Reparación' },
 ];
 
 export default function ContractCreateScreen({ onCreated }) {

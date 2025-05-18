@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export default function ConflictResolutionScreen() {
-  const { contractId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   
@@ -31,24 +31,27 @@ export default function ConflictResolutionScreen() {
   };
 
   useEffect(() => {
+    console.log('id', id);
     const fetchData = async () => {
       try {
         setLoading(true);
         // Fetch contract details
-        const contractRes = await axios.get(`/api/contracts/${contractId}`);
+        const contractRes = await axios.get(`/api/contracts/${id}`);
+        console.log('contractRes', contractRes.data);
         setContract(contractRes.data);
         
         // Calculate arbitration fee
         const fee = calculateArbitrationFee(contractRes.data.monto);
         setArbitrationFee(fee);
         
-        // Fetch messages
-        const messagesRes = await axios.get(`/api/contracts/${contractId}/messages`);
-        setMessages(messagesRes.data);
+        // // Fetch messages
+        // const messagesRes = await axios.get(`/api/contracts/${id}/messages`);
+        setMessages([]);
         
-        // Fetch wallet balance
-        const walletRes = await axios.get('/api/wallet/balance');
-        setWalletBalance(walletRes.data.balance);
+        // // Fetch wallet balance
+        // const walletRes = await axios.get('/api/wallet/balance');
+        // setWalletBalance(walletRes.data.balance);
+        setWalletBalance(100);
         
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -60,7 +63,7 @@ export default function ConflictResolutionScreen() {
     };
 
     fetchData();
-  }, [contractId]);
+  }, [id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -87,12 +90,12 @@ export default function ConflictResolutionScreen() {
       setMessage('');
       
       // Send to API
-      await axios.post(`/api/contracts/${contractId}/messages`, {
+      await axios.post(`/api/contracts/${id}/messages`, {
         content: message
       });
       
       // Refresh messages to get the actual data from the server
-      const messagesRes = await axios.get(`/api/contracts/${contractId}/messages`);
+      const messagesRes = await axios.get(`/api/contracts/${id}/messages`);
       setMessages(messagesRes.data);
       
     } catch (err) {
@@ -123,17 +126,31 @@ export default function ConflictResolutionScreen() {
       setIsSubmitting(true);
       
       // Call API to start arbitration
-      await axios.post(`/api/contracts/${contractId}/start-arbitration`, {
+      const response = await axios.post(`/api/contracts/${id}/start-arbitration`, {
         type: arbitrationType,
         fee: arbitrationType === 'arbitros' ? arbitrationFee : 0
       });
       
-      toast.success('Proceso de arbitraje iniciado correctamente');
-      navigate(`/contracts/${contractId}`);
+      if (response.data) {
+        toast.success('Proceso de arbitraje iniciado correctamente');
+        // Actualizamos el estado local del contrato
+        setContract(prev => ({
+          ...prev,
+          estado: 'arbitraje',
+          updatedAt: new Date().toISOString()
+        }));
+        // Redirigir después de un breve retraso para que se vea el mensaje
+        setTimeout(() => {
+          navigate(`/contracts/${id}`);
+        }, 1500);
+      } else {
+        throw new Error('No se pudo iniciar el proceso de arbitraje');
+      }
       
     } catch (err) {
       console.error('Error starting arbitration:', err);
-      toast.error('Error al iniciar el arbitraje');
+      const errorMessage = err.response?.data?.message || err.message || 'Error al iniciar el arbitraje';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
       setShowConfirmModal(false);
