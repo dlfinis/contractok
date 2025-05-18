@@ -1,12 +1,14 @@
 import { Controller, Post, Body, Get } from '@nestjs/common';
 import { WorldIDService } from './worldid.service';
-
-// --- Almacenamiento en PostgreSQL vía Prisma ---
+import { UserService } from './user.service';
 import { PrismaService } from './prisma.service';
 
 @Controller('api')
 export class VerifyController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly userService: UserService
+  ) {}
 
   /**
    * Endpoint para verificar y vincular un usuario World ID usando nullifier_hash
@@ -78,7 +80,25 @@ export class VerifyController {
             },
           });
         }
-        return { status: 200, message: 'Verificación exitosa', link };
+
+        // Crear o actualizar el usuario
+        const user = await this.userService.findOrCreateUser(payload.nullifier_hash, {
+          isVerified: true
+        });
+
+        return { 
+          status: 200, 
+          message: 'Verificación exitosa', 
+          link,
+          user: {
+            id: user.id,
+            worldId: user.worldId,
+            name: user.name,
+            isVerified: user.isVerified,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+          }
+        };
       } else if (result.code === 'max_verifications_reached') {
         // Si ya está en base de datos, considera autenticado
         const existingLink = await this.prisma.worldIDLink.findUnique({

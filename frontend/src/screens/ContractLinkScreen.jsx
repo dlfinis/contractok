@@ -177,7 +177,7 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
                     </span>
                   )}
                 </div>
-                <div className="mb-2"><strong>Creado:</strong> {new Date(contrato.creadoEn).toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' })}</div>
+                <div className="mb-2"><strong>Creado:</strong> {new Date(contrato.createdAt).toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' })}</div>
                 {contrato && (
                   <div className="contract-details mt-4">
                     <div className="card mb-3">

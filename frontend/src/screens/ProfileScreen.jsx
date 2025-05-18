@@ -25,7 +25,13 @@ export default function ProfileScreen() {
           const contractsRes = await axios.get(`/api/contracts/user/${userId}`);
           // Asegurarse de que contracts sea un array
           const contractsData = Array.isArray(contractsRes.data?.contracts) 
-            ? contractsRes.data.contracts 
+            ? contractsRes.data.contracts.map(contract => ({
+                ...contract,
+                creadorWorldId: contract.creadorWorldId,
+                contraparteWorldId: contract.contraparteWorldId,
+                createdAt: contract.createdAt,
+                updatedAt: contract.updatedAt
+              })) 
             : [];
           setContracts(contractsData);
         } catch (contractError) {
@@ -161,8 +167,8 @@ export default function ProfileScreen() {
                   {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
               </div>
-              <h2 className="h4 mb-2">{user?.name || 'Usuario sin nombre'}</h2>
-              <p className="text-muted mb-4">Miembro desde {new Date(user?.createdAt).toLocaleDateString()}</p>
+              <h2 className="h4 mb-2">{user?.name || 'Usuario'}</h2>
+              <p className="text-muted mb-4">Miembro desde {user?.createdAt ? new Date(user?.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}</p>
               
               <div className="row g-3 mb-4">
                 <div className="col-md-4">
@@ -242,7 +248,7 @@ export default function ProfileScreen() {
                         <div>
                           <h6 className="mb-1">{contract.nombre || 'Contrato sin nombre'}</h6>
                           <p className="mb-1 small text-muted">
-                            {new Date(contract.creadoEn).toLocaleDateString()}
+                            {new Date(contract.createdAt).toLocaleDateString()}
                           </p>
                           <span className={`badge ${getStatusBadgeClass(contract.estado)}`}>
                             {contract.estado || 'pendiente'}

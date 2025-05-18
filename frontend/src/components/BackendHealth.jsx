@@ -43,11 +43,12 @@ export default function BackendHealth() {
     const name = "Test User";
     try {
       const res = await axios.post('/api/user', {
-        hash_id: 'default_nullifier', name
+        worldId: 'default_nullifier'+Date.now(), name
       });
       const data = await res.data;
       setCreateRes(data);
       checkHealth();
+      localStorage.setItem('currentUser', JSON.stringify(data));
     } catch (e) {
       setCreateRes({ error: e.message });
     }

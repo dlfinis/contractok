@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MiniKit, VerificationLevel } from "@worldcoin/minikit-js";
+import PropTypes from "prop-types";
 
-export default function WorldIDLogin({ onAuth, auto = false }) {
+export default function WorldIDLogin({ onAuth, auto = false, onSuccess, onError }) {
   const [proof, setProof] = useState(null);
   const [hasAutoRun, setHasAutoRun] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -9,26 +10,56 @@ export default function WorldIDLogin({ onAuth, auto = false }) {
   const [backendStatus, setBackendStatus] = useState(null);
   const [authInProgress, setAuthInProgress] = useState(false);
 
-  // Verifica con backend usando solo el proof
-  // Recibe el objeto finalPayload completo
+  // Verifica con backend y maneja el registro/actualización del usuario
   const verifyWithBackend = async (finalPayload) => {
     setLoading(true);
     setError("");
     setBackendStatus(null);
+    
     try {
-      // Usa todos los campos relevantes del objeto
+      // 1. Primero verificar la identidad con World ID
       const { proof, nullifier_hash, verification_level, merkle_root, signal_hash } = finalPayload;
       const payload = { proof, nullifier_hash, verification_level, merkle_root, signal_hash };
+      
+      // Verificación con el backend
       const verifyResponse = await fetch('/api/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payload, action: "contract-login", signal: "" }),
       });
+      
       const verifyResponseJson = await verifyResponse.json();
+      
       if (verifyResponseJson.status === 200) {
         localStorage.setItem('wld_backend_authed', 'true');
         setBackendStatus("Verificación exitosa en backend");
-        // Guarda el nullifier_hash si viene del backend
+        
+        // El backend ya ha creado o actualizado el usuario
+        // y nos devuelve los datos del usuario en la respuesta
+        const userData = verifyResponseJson.user || {
+          id: nullifier_hash,
+          worldId: nullifier_hash,
+          name: `Usuario_${nullifier_hash.substring(0, 8)}`,
+          isVerified: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        // 3. Guardar la información del usuario en localStorage
+        const currentUser = {
+          ...userData,
+          verificationLevel: verification_level
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // 4. Notificar a los componentes suscritos que el usuario ha cambiado
+        window.dispatchEvent(new Event('userUpdated'));
+        
+        // 5. Cerrar el modal o redirigir si es necesario
+        if (onSuccess) {
+          onSuccess(currentUser);
+        }
         if (verifyResponseJson.link && verifyResponseJson.link.nullifier_hash) {
           localStorage.setItem('wld_nullifier_hash', verifyResponseJson.link.nullifier_hash);
         } else if (nullifier_hash) {
@@ -41,19 +72,30 @@ export default function WorldIDLogin({ onAuth, auto = false }) {
           await fetch('/api/auth', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ hash_id: hash })
+            body: JSON.stringify({ worldId: hash })
           });
         } catch (e) { /* Ignorar error, el usuario puede existir */ }
       }
       if (onAuth) onAuth(proof, hash);
       } else {
-        setBackendStatus("Verificación fallida en backend");
-        setError("No se pudo verificar con backend.");
+        throw new Error(verifyResponseJson.error || "Error en la verificación");
       }
     } catch (err) {
-      setError("Error autenticando con backend: " + (err?.message || err));
+      console.error("Error en el proceso de autenticación:", err);
+      setError(err.message || "Error al completar el proceso de autenticación");
+      
+      // Limpiar el estado de autenticación en caso de error
+      localStorage.removeItem('wld_backend_authed');
+      localStorage.removeItem('wld_nullifier_hash');
+      
+      // Notificar el error a través de la función onError si está disponible
+      if (onError) {
+        onError(err);
+      }
+    } finally {
+      setLoading(false);
+      setAuthInProgress(false);
     }
-    setLoading(false);
   };
 
   // --- Evento de autenticación manual ---
@@ -204,4 +246,24 @@ export default function WorldIDLogin({ onAuth, auto = false }) {
   );
 }
 
+WorldIDLogin.propTypes = {
+  /** Callback que se ejecuta cuando la autenticación con World ID es exitosa */
+  onAuth: PropTypes.func,
+  
+  /** Si es true, intenta autenticar automáticamente al cargar */
+  auto: PropTypes.bool,
+  
+  /** Callback que se ejecuta cuando todo el flujo de autenticación y registro es exitoso */
+  onSuccess: PropTypes.func,
+  
+  /** Callback que se ejecuta cuando ocurre un error en cualquier parte del proceso */
+  onError: PropTypes.func,
+};
+
+WorldIDLogin.defaultProps = {
+  auto: false,
+  onAuth: () => {},
+  onSuccess: () => {},
+  onError: () => {}
+};
 

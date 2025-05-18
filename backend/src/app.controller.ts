@@ -12,12 +12,14 @@ import {
 import { PrismaService } from './prisma.service';
 import { Prisma } from '@prisma/client';
 
-// Definimos un tipo personalizado para los usuarios con hash_id
-interface UserWithHashId {
+// Definimos un tipo personalizado para los usuarios con worldId
+interface UserWithWorldId {
   id: number;
-  hash_id: string;
-  name: string | null;
+  worldId: string;
+  name: string;
+  isVerified: boolean;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 @Controller('api')
@@ -55,7 +57,7 @@ export class AppController {
   async getUsers() {
     try {
       const users = await this.prisma.$queryRaw`
-        SELECT id, "hash_id" as "hashId", name, "createdAt" as "createdAt"
+        SELECT id, "worldId", name, "createdAt" as "createdAt"
         FROM "User"
         ORDER BY "createdAt" DESC
       `;
@@ -70,7 +72,7 @@ export class AppController {
   async getUserById(@Param('id') id: string) {
     try {
       const user = await this.prisma.$queryRaw`
-        SELECT id, "hash_id" as "hashId", name, "createdAt" as "createdAt"
+        SELECT id, "worldId", name, "createdAt" as "createdAt"
         FROM "User"
         WHERE id = ${parseInt(id)}
         LIMIT 1
@@ -90,10 +92,10 @@ export class AppController {
     }
 
     try {
-      // Eliminar usuarios de prueba (aquellos con hash_id que empiezan con 'test_')
+      // Eliminar usuarios de prueba (aquellos con worldId que empiezan con 'test_')
       const result = await this.prisma.$executeRaw`
         DELETE FROM "User" 
-        WHERE "hash_id" LIKE 'test_%'
+        WHERE "worldId" LIKE 'test_%'
       `;
       
       return { 
@@ -108,18 +110,18 @@ export class AppController {
   }
 
   @Post('/auth')
-  async authUser(@Body() body: { hash_id: string; name?: string }) {
+  async authUser(@Body() body: { worldId: string; name?: string }) {
     try {
-      // Buscamos el usuario por hash_id usando una consulta SQL directa
-      let user = (await this.prisma.$queryRaw<UserWithHashId[]>`
-        SELECT * FROM "User" WHERE "hash_id" = ${body.hash_id} LIMIT 1
+      // Buscamos el usuario por worldId usando una consulta SQL directa
+      let user = (await this.prisma.$queryRaw<UserWithWorldId[]>`
+        SELECT * FROM "User" WHERE "worldId" = ${body.worldId} LIMIT 1
       `)[0] || null;
       
       if (!user) {
         // Si no existe, lo creamos usando una consulta SQL directa
-        const newUser = await this.prisma.$queryRaw<UserWithHashId[]>`
-          INSERT INTO "User" (hash_id, name) 
-          VALUES (${body.hash_id}, ${body.name || null})
+        const newUser = await this.prisma.$queryRaw<UserWithWorldId[]>`
+          INSERT INTO "User" (worldId, name) 
+          VALUES (${body.worldId}, ${body.name || null})
           RETURNING *
         `;
         user = newUser[0];
@@ -133,11 +135,11 @@ export class AppController {
   }
 
   @Post('/user')
-  async createUser(@Body() body: { hash_id: string; name?: string }) {
+  async createUser(@Body() body: { worldId: string; name?: string }) {
     try {
-      // Buscamos el usuario por hash_id
-      const existingUser = (await this.prisma.$queryRaw<UserWithHashId[]>`
-        SELECT * FROM "User" WHERE "hash_id" = ${body.hash_id} LIMIT 1
+      // Buscamos el usuario por worldId
+      const existingUser = (await this.prisma.$queryRaw<UserWithWorldId[]>`
+        SELECT * FROM "User" WHERE "worldId" = ${body.worldId} LIMIT 1
       `)[0];
       
       if (existingUser) {
@@ -145,9 +147,9 @@ export class AppController {
       }
       
       // Si no existe, lo creamos usando una consulta SQL directa
-      const newUser = await this.prisma.$queryRaw<UserWithHashId[]>`
-        INSERT INTO "User" (hash_id, name, createdAt) 
-        VALUES (${body.hash_id}, ${body.name || null}, NOW())
+      const newUser = await this.prisma.$queryRaw<UserWithWorldId[]>`
+        INSERT INTO "User" (worldId, name, createdAt) 
+        VALUES (${body.worldId}, ${body.name || null}, NOW())
         RETURNING *
       `;
       
@@ -178,10 +180,10 @@ export class AppController {
     monto: number;
     plazoEntrega: string; // ISO date string
     descripcion?: string;
-    creadorHashId: string;
-    contraparteHashId?: string;
+    creadorWorldId: string;
+    contraparteWorldId?: string;
   }) {
-    if (!body.tipo || !body.monto || !body.plazoEntrega || !body.creadorHashId) {
+    if (!body.tipo || !body.monto || !body.plazoEntrega || !body.creadorWorldId) {
       return { error: 'Faltan campos obligatorios' };
     }
     const fee = Number((body.monto * 0.01).toFixed(2));
@@ -190,15 +192,15 @@ export class AppController {
     const codigoVinculacion = await this.generarCodigoVinculacion();
 
     // Verificamos si el usuario creador existe
-    const existingUser = (await this.prisma.$queryRaw<UserWithHashId[]>`
-      SELECT * FROM "User" WHERE "hash_id" = ${body.creadorHashId} LIMIT 1
+    const existingUser = (await this.prisma.$queryRaw<UserWithWorldId[]>`
+      SELECT * FROM "User" WHERE "worldId" = ${body.creadorWorldId} LIMIT 1
     `)[0];
     
     if (!existingUser) {
       // Si no existe, creamos el usuario con valores por defecto
       await this.prisma.$queryRaw`
-        INSERT INTO "User" (hash_id, name) 
-        VALUES (${body.creadorHashId}, NULL)
+        INSERT INTO "User" (worldId, name) 
+        VALUES (${body.creadorWorldId}, NULL)
       `;
     }
 
@@ -206,7 +208,7 @@ export class AppController {
     const newContract = await this.prisma.$queryRaw<any>`
       INSERT INTO "Contract" (
         "tipo", "monto", "fee", "plazoEntrega", "descripcion", 
-        "creadorHashId", "contraparteHashId", "estado", 
+        "creadorWorldId", "contraparteWorldId", "estado", 
         "codigoVinculacion", "deadlineAprobacion",
         "aprobadoCreador", "aprobadoContraparte"
       ) VALUES (
@@ -215,8 +217,8 @@ export class AppController {
         ${fee},
         ${plazo.toISOString()},
         ${body.descripcion || null},
-        ${body.creadorHashId},
-        ${body.contraparteHashId || null},
+        ${body.creadorWorldId},
+        ${body.contraparteWorldId || null},
         'pendiente',
         ${codigoVinculacion},
         ${deadlineAprobacion.toISOString()},
@@ -236,11 +238,11 @@ export class AppController {
     try {
       const contracts = await this.prisma.$queryRaw<any[]>`
         SELECT c.*, 
-               u1."hash_id" as "creador_hash_id", u1.name as "creador_name",
-               u2."hash_id" as "contraparte_hash_id", u2.name as "contraparte_name"
+               u1."worldId" as "creadorWorldId", u1.name as "creador_name",
+               u2."worldId" as "contraparteWorldId", u2.name as "contraparte_name"
         FROM "Contract" c
-        LEFT JOIN "User" u1 ON c."creadorHashId" = u1."hash_id"
-        LEFT JOIN "User" u2 ON c."contraparteHashId" = u2."hash_id"
+        LEFT JOIN "User" u1 ON c."creadorWorldId" = u1."worldId"
+        LEFT JOIN "User" u2 ON c."contraparteWorldId" = u2."worldId"
         WHERE UPPER(c."codigoVinculacion") = UPPER(${codigo})
         LIMIT 1
       `;
@@ -261,11 +263,11 @@ export class AppController {
     try {
       const contracts = await this.prisma.$queryRaw<any[]>`
         SELECT c.*, 
-               u1."hash_id" as "creador_hash_id", u1.name as "creador_name",
-               u2."hash_id" as "contraparte_hash_id", u2.name as "contraparte_name"
+               u1."worldId" as "creadorWorldId", u1.name as "creador_name",
+               u2."worldId" as "contraparteWorldId", u2.name as "contraparte_name"
         FROM "Contract" c
-        LEFT JOIN "User" u1 ON c."creadorHashId" = u1."hash_id"
-        LEFT JOIN "User" u2 ON c."contraparteHashId" = u2."hash_id"
+        LEFT JOIN "User" u1 ON c."creadorWorldId" = u1."worldId"
+        LEFT JOIN "User" u2 ON c."contraparteWorldId" = u2."worldId"
         WHERE c.id = ${parseInt(id)}
         LIMIT 1
       `;
@@ -311,11 +313,11 @@ export class AppController {
       // Obtenemos la información completa del contrato con los usuarios relacionados
       const updatedContract = await this.prisma.$queryRaw<any[]>`
         SELECT c.*, 
-               u1."hash_id" as "creador_hash_id", u1.name as "creador_name",
-               u2."hash_id" as "contraparte_hash_id", u2.name as "contraparte_name"
+               u1."worldId" as "creadorWorldId", u1.name as "creador_name",
+               u2."worldId" as "contraparteWorldId", u2.name as "contraparte_name"
         FROM "Contract" c
-        LEFT JOIN "User" u1 ON c."creadorHashId" = u1."hash_id"
-        LEFT JOIN "User" u2 ON c."contraparteHashId" = u2."hash_id"
+        LEFT JOIN "User" u1 ON c."creadorWorldId" = u1."worldId"
+        LEFT JOIN "User" u2 ON c."contraparteWorldId" = u2."worldId"
         WHERE c.id = ${parseInt(id)}
         LIMIT 1
       `;
@@ -331,14 +333,14 @@ export class AppController {
     try {
       const contracts = await this.prisma.$queryRaw<any[]>`
         SELECT c.*, 
-               u1."hash_id" as "creador_hash_id", u1.name as "creador_name",
-               u2."hash_id" as "contraparte_hash_id", u2.name as "contraparte_name"
+               u1."worldId" as "creadorWorldId", u1.name as "creador_name",
+               u2."worldId" as "contraparteWorldId", u2.name as "contraparte_name"
         FROM "Contract" c
-        LEFT JOIN "User" u1 ON c."creadorHashId" = u1."hash_id"
-        LEFT JOIN "User" u2 ON c."contraparteHashId" = u2."hash_id"
-        WHERE c."creadorHashId" = ${userId}
-        OR c."contraparteHashId" = ${userId}
-        ORDER BY c."creadoEn" DESC
+        LEFT JOIN "User" u1 ON c."creadorWorldId" = u1."worldId"
+        LEFT JOIN "User" u2 ON c."contraparteWorldId" = u2."worldId"
+        WHERE c."creadorWorldId" = ${userId}
+        OR c."contraparteWorldId" = ${userId}
+        ORDER BY c."createdAt" DESC 
       `;
       return { status: 'success', contracts };
     } catch (error) {

@@ -137,9 +137,9 @@ export default function SupportScreen({ onClose }) {
     setIsLoading(true);
     setUserMsg(null);
     try {
-      const response = await axios.post('/api/auth', { 
-        hash_id: 'test_user_' + Date.now(),
-        name: 'Test User' 
+      const response = await axios.post('/api/user', { 
+        worldId: 'test_user_' + Date.now(),
+        name: 'Test User'
       });
       setUserMsg('Usuario de prueba creado correctamente');
       console.log('Usuario creado:', response.data);
