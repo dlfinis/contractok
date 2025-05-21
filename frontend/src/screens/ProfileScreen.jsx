@@ -145,7 +145,7 @@ export default function ProfileScreen() {
     name: generateText({}).name,
     createdAt: new Date().toISOString(),
     isVerified: true,
-    worldId: generateText({}).code,
+    world_id: generateText({}).code,
     id: generateText({}).code
   };
 

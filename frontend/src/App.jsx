@@ -31,10 +31,17 @@ export default function App() {
     navigate('/create');
   };
 
-  const handleJoin = (id, isSearch = false) => {
-    const joinPath = id ? `/link/${id}` : '/link';
-    navigate(joinPath, { state: { isSearch } });
+  // Navegación explícita según el modo
+  const handleJoin = (id, isVincular = false) => {
+    if (id) {
+      navigate(`/link/${id}`); // Vincular con código
+    } else if (isVincular) {
+      navigate('/link/vincular'); // Vincular sin código
+    } else {
+      navigate('/link'); // Buscar
+    }
   };
+
 
   // Efecto para cargar datos iniciales
   useEffect(() => {
@@ -117,14 +124,9 @@ export default function App() {
                   />
                 </div>
               } />
-              <Route path="/link/:id?" element={
-                <ContractLinkScreen 
-                  contractId={location.pathname.split('/')[2]}
-                  isSearchMode={location.pathname === '/link'}
-                  onBack={handleBack}
-                  onSupportClick={() => setShowSupport(true)}
-                />} 
-              />
+              <Route path="/link" element={<ContractLinkScreen mode="buscar" onBack={handleBack} />} />
+              <Route path="/link/vincular" element={<ContractLinkScreen mode="vincular" onBack={handleBack} />} />
+              <Route path="/link/:id" element={<ContractLinkScreen mode="vincular" onBack={handleBack} />} />
               <Route path="/buscar" element={
                 <div className="container py-4">
                   <h2>Buscar Contratos</h2>

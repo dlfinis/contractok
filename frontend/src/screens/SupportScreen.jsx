@@ -138,7 +138,7 @@ export default function SupportScreen({ onClose }) {
     setUserMsg(null);
     try {
       const response = await axios.post('/api/user', { 
-        worldId: 'test_user_' + Date.now(),
+        world_id: 'test_user_' + Date.now(),
         name: 'Test User'
       });
       setUserMsg('Usuario de prueba creado correctamente');
@@ -394,7 +394,7 @@ export default function SupportScreen({ onClose }) {
                   )
                 },
                 { 
-                  key: 'worldId', 
+                  key: 'world_id', 
                   title: 'World ID',
                   className: 'text-monospace',
                   render: (item) => (
@@ -418,7 +418,7 @@ export default function SupportScreen({ onClose }) {
                 }
               ]}
               rowKey="id"
-              rowClass={(item) => item.worldId?.startsWith('test_') ? 'table-warning' : ''}
+              rowClass={(item) => item.world_id?.startsWith('test_') ? 'table-warning' : ''}
             />
           ) : (
             <DataTable

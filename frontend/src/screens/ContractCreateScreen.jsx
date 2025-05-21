@@ -30,7 +30,9 @@ export default function ContractCreateScreen({ onCreated }) {
     
     try {
       const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      if (!currentUser?.world_id) {
+      console.log('Current user:', currentUser);
+      const world_id = currentUser.world_id || currentUser.world_id
+      if (!world_id) {
         throw new Error('No se pudo obtener la información del usuario');
       }
 
@@ -39,7 +41,7 @@ export default function ContractCreateScreen({ onCreated }) {
         monto: parseFloat(monto),
         plazoEntrega,
         descripcion,
-        creadorWorldId: currentUser.world_id,
+        creadorWorldId: world_id,
         contraparteWorldId: contraparteId || undefined,
       });
 
@@ -48,7 +50,7 @@ export default function ContractCreateScreen({ onCreated }) {
         monto: parseFloat(monto),
         plazoEntrega,
         descripcion,
-        creadorWorldId: currentUser.world_id,
+        creadorWorldId: world_id,
         contraparteWorldId: contraparteId || undefined,
       });
 
@@ -75,10 +77,10 @@ export default function ContractCreateScreen({ onCreated }) {
   if (contractCreated && contractData?.codigoVinculacion) {
     return (
       <InfoScreen 
-        title="¡Contrato Creado Éxitosamente!"
+        title={<span style={{color:'#0A2E5A', fontWeight:700, fontSize: '1.6rem', letterSpacing:'-1px'}}>¡Contrato Creado Éxitosamente!</span>}
         code={contractData.codigoVinculacion}
-        icon={<i className="bi bi-check-circle-fill text-success" style={{fontSize: '4rem'}}></i>}
-        description="El contrato ha sido creado éxitosamente."
+        icon={<i className="bi bi-check-circle-fill" style={{color:'#00a878', fontSize: '2.6rem'}}></i>}
+        description={<span style={{color:'#0A2E5A', fontWeight:500, fontSize:'1.05rem'}}>El contrato ha sido creado éxitosamente.</span>}
         actions={
           [
             {
@@ -96,13 +98,13 @@ export default function ContractCreateScreen({ onCreated }) {
   }
 
   return (
-    <div className="container mt-4 position-relative" style={{maxWidth: 480, minHeight: '92vh'}}>
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title text-center mb-4">Crear Contrato</h2>
+    <div className="home-main">
+      <div className="card shadow-sm m-3" style={{border: 'none', background: '#f9fafb'}}>
+        <div className="card-body mx-2">
+          <h2 className="card-title text-center mb-4 fs-4 fw-bold" style={{color:'#0A2E5A', letterSpacing:'-1px'}}>Crear Contrato</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label">Tipo de contrato</label>
+              <label className="form-label fw-bold">Tipo de contrato</label>
               <div className="input-group">
                 <span className="input-group-text"><i className="bi bi-file-earmark-text"></i></span>
                 <select className="form-select" value={tipo} onChange={e => setTipo(e.target.value)} required>
@@ -119,7 +121,7 @@ export default function ContractCreateScreen({ onCreated }) {
               )}
             </div>
             <div className="mb-3">
-              <label className="form-label">Monto (WDL)</label>
+              <label htmlFor="monto" className="form-label fw-bold" style={{color:'#0A2E5A'}}>Monto (WDL)</label>
               <div className="input-group">
                 <span className="input-group-text"><i className="bi bi-currency-dollar"></i></span>
                 <input
@@ -127,7 +129,9 @@ export default function ContractCreateScreen({ onCreated }) {
                   min="10"
                   max="1999"
                   step="0.01"
-                  className="form-control"
+                  className="form-control fw-bold fs-6"
+                  style={{background:'#f2f6fa', color:'#0A2E5A', border:'none', borderRadius:10, letterSpacing:'0.25em'}}
+                  id="monto"
                   value={monto}
                   onChange={e => setMonto(e.target.value)}
                   required
@@ -147,13 +151,13 @@ export default function ContractCreateScreen({ onCreated }) {
                 <div className="mt-2 mb-1" style={{backgroundColor: 'rgba(13, 110, 253, 0.08)', borderRadius: 8, padding: '7px 12px'}}>
                   <span className="fs-7 text-secondary">
                     <i className="bi bi-calculator me-1"></i>
-                    Comisión (1%): <b>{(parseFloat(monto)*0.01).toFixed(2)} WDL</b> &nbsp;|&nbsp; Recibirás: <b>{(parseFloat(monto)*0.99).toFixed(2)} WDL</b>
+                    Comisión (3%): <b>{(parseFloat(monto)*0.03).toFixed(2)} WDL</b> &nbsp;|&nbsp; Recibirás: <b>{(parseFloat(monto)*0.97).toFixed(2)} WDL</b>
                   </span>
                 </div>
               )}
             </div>
             <div className="mb-3">
-              <label className="form-label">Fecha límite de entrega</label>
+              <label htmlFor="plazoEntrega" className="form-label fw-bold fs-6" style={{color:'#0A2E5A', fontSize:'1.1rem'}}>Fecha límite de entrega</label>
               <div className="input-group">
                 <span className="input-group-text"><i className="bi bi-calendar-event"></i></span>
                 {(() => {
@@ -170,7 +174,9 @@ export default function ContractCreateScreen({ onCreated }) {
                   return (
                     <input
                       type="date"
-                      className="form-control"
+                      className="form-control fw-bold fs-6"
+                      style={{background:'#f2f6fa', color:'#0A2E5A', border:'none', borderRadius:10}}
+                      id="plazoEntrega"
                       value={plazoEntrega}
                       min={minDate}
                       max={maxDate}
@@ -182,16 +188,15 @@ export default function ContractCreateScreen({ onCreated }) {
               </div>
             </div>
             <div className="mb-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <label className="form-label mb-0">Descripción</label>
-                <span className={`small fw-bold ${descripcion.length < 100 ? 'text-danger' : 'text-success'}`}>Caract.: {descripcion.length}/100</span>
-              </div>
+              <label htmlFor="descripcion" className="form-label fw-bold fs-6" style={{color:'#0A2E5A', fontSize:'1.1rem'}}>Descripción</label>
               <div className="input-group">
                 <span className="input-group-text"><i className="bi bi-card-text"></i></span>
                 <textarea
-                  className="form-control"
+                  className="form-control fw-bold fs-7 text fw-normal"
+                  style={{background:'#f2f6fa', color:'#0A2E5A', border:'none', borderRadius:10,}}
+                  id="descripcion"
                   value={descripcion}
-                  minLength={100}
+                  minLength={20}
                   onChange={e => {
                     const value = e.target.value;
                     if (/l{9}/i.test(value.slice(-9))) {
@@ -216,28 +221,21 @@ export default function ContractCreateScreen({ onCreated }) {
 
               </div>
             </div>
-
-
-            {descripcion.length < 100 && (
-              <div className="alert alert-danger py-2 mb-3 mt-2">
-                La descripción debe tener al menos 100 caracteres.
-              </div>
-            )}
-            <button type="submit" className="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 py-3" disabled={loading || descripcion.length < 100 || !monto || isNaN(parseFloat(monto)) || parseFloat(monto) < 10 || parseFloat(monto) > 1999 || !tipo}>
+            <button type="submit" className="btn btn-primary btn-md w-100 d-flex align-items-center justify-content-center gap-2 py-3" disabled={loading || descripcion.length < 20 || !monto || isNaN(parseFloat(monto)) || parseFloat(monto) < 10 || parseFloat(monto) > 1999 || !tipo}>
               <i className="bi bi-plus-circle"></i> Crear contrato
             </button>
           </form>
-          <div className="mt-2 mb-1" style={{backgroundColor: 'rgba(13, 110, 253, 0.08)', borderRadius: 8, padding: '8px 12px'}}>
+          <div className="mt-2 mb-4" style={{backgroundColor: 'rgba(13, 110, 253, 0.08)', borderRadius: 8, padding: '8px 12px'}}>
             <div className="d-flex align-items-start">
               <i className="bi bi-info-circle me-2 mt-1 text-primary"></i>
               <span className="fs-7 text-dark" style={{textAlign: 'justify', lineHeight: '1.25', fontSize: '0.77em'}}>
-                Cuando confirmes la creación del contrato, se descontará automáticamente una comisión del <b>1%</b> sobre el monto ingresado. Revisa bien los datos antes de continuar. Esta comisión es necesaria para mantener la plataforma segura y operativa.
+                Cuando confirmes la creación del contrato, se descontará automáticamente una comisión del <b>3%</b> sobre el monto ingresado. Revisa bien los datos antes de continuar.
               </span>
             </div>
           </div>
 
           {/* Error message */}
-          {error && <div className="alert alert-danger mt-3 text-center">{error}</div>}
+          {/* {error && <div className="alert alert-danger mt-3 text-center">{error}</div>} */}
         </div>
       </div>
     </div>

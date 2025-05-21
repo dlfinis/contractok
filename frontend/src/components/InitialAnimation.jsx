@@ -1,91 +1,161 @@
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Global } from '@emotion/react';
+import { colors } from '../theme/colors';
 
-const colors = {
-  blue: "#0A2E5A",
-  green: "#00A878",
-  yellow: "#FFD700",
-  purple: "#7F5AF0",
-  cyan: "#16E6D5"
+const animationStyles = {
+  container: {
+    background: `linear-gradient(-45deg, ${colors.darkBlue}, ${colors.teal}, ${colors.mint}, ${colors.white})`,
+    backgroundSize: '400% 400%',
+    animation: 'gradient 20s ease infinite',
+    width: '100vw',
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    zIndex: 1000,
+    fontFamily: "var(--main-font), 'Sora', Arial, sans-serif",
+    overflow: 'hidden',
+  },
+  logoContainer: {
+    background: 'rgba(255, 255, 255, 0.1)',
+    width: 140,
+    height: 140,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '30%',
+    boxShadow: `0 0 30px ${colors.teal}40`,
+    backdropFilter: 'blur(5px)',
+    border: `1px solid ${colors.teal}30`,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    objectFit: 'contain',
+    display: 'block',
+  },
+  title: {
+    color: colors.white,
+    fontWeight: 800,
+    fontFamily: "var(--logo-font), 'Sora', Arial, sans-serif",
+    fontSize: 44,
+    marginTop: 30,
+    letterSpacing: 2.5,
+    textShadow: `0 0 10px ${colors.white}, 0 0 20px ${colors.teal}`,
+    position: 'relative',
+    padding: '10px 30px',
+    borderRadius: '50px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(5px)',
+    border: `1px solid ${colors.teal}20`,
+  },
 };
 
-export default function InitialAnimation({ onFinish }) {
-  const [show, setShow] = useState(true);
+export default function InitialAnimation({ onAnimationComplete }) {
+  const [show, setShow] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
+  // Inicializar la animación
   useEffect(() => {
-    const timer = setTimeout(() => setShow(false), 2200);
-    return () => clearTimeout(timer);
+    setShow(true);
+    setIsVisible(true);
+    sessionStorage.setItem('hasSeenAnimation', 'true');
   }, []);
 
-  useEffect(() => {
-    if (!show && onFinish) onFinish();
-  }, [show, onFinish]);
+  // Manejar el final de la animación
+  const handleAnimationEnd = useCallback(() => {
+    setShow(false);
+    onAnimationComplete?.();
+  }, [onAnimationComplete]);
+
+  // Estilos de animación
+  const logoAnimation = {
+    initial: { scale: 0.7, opacity: 0, rotate: -15 },
+    animate: { 
+      scale: [0.6, 1.1, 1],
+      rotate: [-20, 10, 0],
+      opacity: 1,
+    },
+    transition: { 
+      duration: 5,
+      ease: [0.16, 1, 0.3, 1],
+      scale: { duration: 4 },
+      rotate: { duration: 4.5 },
+    },
+  };
+
+  const titleAnimation = {
+    initial: { opacity: 0, y: 20 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      textShadow: [
+        `0 0 10px ${colors.white}, 0 0 20px ${colors.teal}`,
+        `0 0 15px ${colors.white}, 0 0 25px ${colors.teal}`,
+        `0 0 10px ${colors.white}, 0 0 20px ${colors.teal}`,
+      ],
+    },
+    transition: { 
+      delay: 0.8, 
+      duration: 1,
+      textShadow: {
+        duration: 3,
+        repeat: Infinity,
+        repeatType: 'reverse',
+      },
+    },
+  };
+
+  if (!isVisible) return null;
 
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          className="initial-animation"
-          initial={{ opacity: 0, filter: "blur(16px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, filter: "blur(16px)" }}
-          transition={{ duration: 1.2 }}
-          style={{
-            background: `linear-gradient(120deg, #0A2E5A 0%, #7F5AF0 40%,rgb(70, 58, 98) 70%,rgb(62, 13, 239) 100%)`,
-            backgroundSize: '200% 200%',
-            animation: 'gradientMove 4.5s ease-in-out infinite',
-            width: "100vw",
-            height: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            zIndex: 1000,
-            fontFamily: "var(--main-font), 'Sora', Arial, sans-serif"
-          }}
-        >
+    <>
+      <Global
+        styles={{
+          '@keyframes gradient': {
+            '0%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
+            '100%': { backgroundPosition: '0% 50%' },
+          },
+        }}
+      />
+      
+      <AnimatePresence>
+        {show && (
           <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
-            animate={{ scale: 1.08, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 220, damping: 20, delay: 0.4 }}
-            style={{
-              background: 'none',
-              width: 130,
-              height: 130,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: 'none',
-              borderRadius: 0
-            }}
+            className="initial-animation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            onAnimationComplete={handleAnimationEnd}
+            style={animationStyles.container}
           >
-            <img
-              src="/images/logo.png"
-              alt="Logo ContratoYa"
-              style={{ width: 100, height: 100, objectFit: 'contain', display: 'block' }}
-            />
+            <motion.div
+              {...logoAnimation}
+              style={animationStyles.logoContainer}
+            >
+              <img
+                src="/images/logo.png"
+                alt="Logo ContratosYa"
+                style={animationStyles.logo}
+              />
+            </motion.div>
+            
+            <motion.h1
+              {...titleAnimation}
+              style={animationStyles.title}
+            >
+              ContratosYa
+            </motion.h1>
           </motion.div>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 0.6 }}
-            style={{
-              color: "#fff",
-              fontWeight: 800,
-              fontFamily: "var(--logo-font), 'Sora', Arial, sans-serif",
-              fontSize: 44,
-              marginTop: 38,
-              letterSpacing: 2.5,
-              textShadow: `0 2px 18px #7F5AF077, 0 2px 10px #0A2E5A99`
-            }}
-          >
-            ContratosYa
-          </motion.h1>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

@@ -101,7 +101,7 @@ export class AppController {
     }
 
     try {
-      // Eliminar usuarios de prueba (aquellos con worldId que empiezan con 'test_')
+      // Eliminar usuarios de prueba (aquellos con world_id que empiezan con 'test_')
       const result = await this.prisma.$executeRaw`
         DELETE FROM "User" 
         WHERE "world_id" LIKE 'test_%'
@@ -119,15 +119,15 @@ export class AppController {
   }
 
   @Post('/auth')
-  async authUser(@Body() body: { worldId: string; name?: string }) {
+  async authUser(@Body() body: { world_id: string; name?: string }) {
     try {
       // Buscar o crear el usuario usando Prisma Client
       const user = await this.prisma.user.upsert({
-        where: { world_id: body.worldId },
+        where: { world_id: body.world_id },
         update: {},
         create: {
-          world_id: body.worldId,
-          name: body.name || `Usuario_${body.worldId.substring(0, 8)}`,
+          world_id: body.world_id,
+          name: body.name || `Usuario_${body.world_id.substring(0, 8)}`,
           isVerified: true,
           createdAt: new Date(),
           updatedAt: new Date()
@@ -142,11 +142,11 @@ export class AppController {
   }
 
   @Post('/user')
-  async createUser(@Body() body: { worldId: string; name?: string }) {
+  async createUser(@Body() body: { world_id: string; name?: string }) {
     try {
       // Verificar si el usuario ya existe
       const existingUser = await this.prisma.user.findUnique({
-        where: { world_id: body.worldId }
+        where: { world_id: body.world_id }
       });
       
       if (existingUser) {
@@ -156,8 +156,8 @@ export class AppController {
       // Crear nuevo usuario usando Prisma Client
       const newUser = await this.prisma.user.create({
         data: {
-          world_id: body.worldId,
-          name: body.name || `Usuario_${body.worldId.substring(0, 8)}`,
+          world_id: body.world_id,
+          name: body.name || `Usuario_${body.world_id.substring(0, 8)}`,
           isVerified: true,
           createdAt: new Date(),
           updatedAt: new Date()
@@ -342,10 +342,10 @@ export class AppController {
         },
         include: {
           creador: {
-            select: { worldId: true, name: true }
+            select: { world_id: true, name: true }
           },
           contraparte: {
-            select: { worldId: true, name: true }
+            select: { world_id: true, name: true }
           }
         }
       });

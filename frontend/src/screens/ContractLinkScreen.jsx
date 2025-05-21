@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import axios from 'axios';
 
-export default function ContractLinkScreen({ contractId = '', isSearchMode = false }) {
-  const [codigo, setCodigo] = useState(contractId || '');
+export default function ContractLinkScreen({ mode }) {
+  const { id } = useParams();
+  const isSearchMode = mode === 'buscar';
+  const [codigo, setCodigo] = useState(id || '');
+  // Elimina la declaración duplicada de codigo
+
   const [contrato, setContrato] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [accion, setAccion] = useState(null); // 'aprobado' o 'rechazado'
   
-  // Si se proporciona un contractId, buscar automáticamente
+  // Si se proporciona un id en la URL y estamos en modo vincular, buscar automáticamente
   useEffect(() => {
-    if (contractId && !isSearchMode) {
-      setCodigo(contractId);
+    if (id && !isSearchMode) {
+      setCodigo(id);
       fetchContrato();
     }
-  }, [contractId, isSearchMode]);
+  }, [id, isSearchMode]);
 
   const fetchContrato = async () => {
     setLoading(true);
@@ -24,8 +29,10 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
     setContrato(null);
     try {
       const res = await axios.get(`/api/contracts/code/${codigo}`);
+      console.log('Contrato encontrado:', res.data);
       setContrato(res.data);
     } catch (err) {
+      console.log('Error al buscar contrato:', err);
       setError(err.response?.data?.message || 'Contrato no encontrado');
     } finally {
       setLoading(false);
@@ -112,26 +119,27 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
   };
 
   return (
-    <div className="container mt-4 position-relative" style={{maxWidth: 480, minHeight: '92vh'}}>
-      <div className="card shadow-sm">
+    <div className="home-main">
+      <div className="card shadow-sm m-3" style={{border: 'none', background: '#f9fafb'}}>
         <div className="card-body">
-          <h2 className="card-title text-center mb-4">
+          <h2 className="card-title text-center mb-4 fs-4 fw-bold" style={{color: '#0A2E5A', letterSpacing: '-1px'}}>
             {isSearchMode ? 'Buscar contrato' : 'Vincular a contrato'}
           </h2>
           <div className="mb-4">
-            <div className="input-group input-group-md">
+            <div className="input-group input-group-md" style={{boxShadow: '0 2px 8px rgba(0,0,0,0.06)', borderRadius: 12}}>
               <input
                 type="text"
-                className="form-control form-control-md text-uppercase text-center fw-bold md-6"
-                placeholder="Código de 4 dígitos"
+                className="form-control form-control-md fs-6 text-uppercase text-center fw-bold"
+                placeholder="Código"
                 maxLength={4}
                 value={codigo}
                 onChange={(e) => setCodigo(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === 'Enter' && codigo.trim() && fetchContrato()}
-                style={{letterSpacing: '0.25em'}}
+                style={{letterSpacing: '0.25em', border: 'none', background: '#f2f6fa', borderRadius: 12, color: '#0A2E5A'}}
               />
               <button
-                className="btn btn-primary px-4"
+                className="btn fw-bold fs-7"
+                style={{background: '#0A2E5A', color: 'white', borderRadius: 12, padding: '10px 28px', boxShadow: '0 2px 4px rgba(0,0,0,0.07)'}}
                 type="button"
                 onClick={fetchContrato}
                 disabled={loading || codigo.length !== 4}
@@ -152,30 +160,34 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
           </div>
           {loading && (
             <div className="text-center my-5 py-5">
-              <div className="spinner-border text-primary" role="status">
+              <div className="spinner-border" style={{color: '#0A2E5A'}} role="status">
                 <span className="visually-hidden">Cargando...</span>
               </div>
-              <p className="mt-2">Procesando tu solicitud...</p>
+              <p className="mt-2" style={{color: '#0A2E5A', fontWeight: 600}}>Procesando tu solicitud...</p>
             </div>
           )}
           {contrato && (
-            <div className="card mt-4">
-              <div className="card-body">
+            <div className="card mt-4" style={{borderRadius: 16, border: 'none', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.05)'}}>
+              <div className="card-body" style={{padding: 24}}>
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h4 className="mb-0">
-                    <i className="bi bi-file-earmark-text me-2"></i>
-                    Detalles del Contrato
+                  <h4 className="mb-0 fs-6 fw-bold" style={{color: '#0A2E5A'}}>
+                    <span role="img" aria-label="Contrato" style={{marginRight: 8}}>📄</span>
+                    Detalles
                   </h4>
-                  {isSearchMode && (
-                    <span className={`badge ${contrato.estado === 'aprobado' ? 'bg-success' : 
-                                      contrato.estado === 'rechazado' ? 'bg-danger' : 
-                                      contrato.estado === 'pendiente' ? 'bg-warning' : 'bg-secondary'}`}>
-                      <i className={`bi ${contrato.estado === 'aprobado' ? 'bi-check-lg' : 
-                                       contrato.estado === 'rechazado' ? 'bi-x-lg' : 
-                                       contrato.estado === 'pendiente' ? 'bi-hourglass' : 'bi-question-circle'} me-1`}></i>
+                  {
+                    <span className="px-2 py-1 mx-2 fs-12 text-center fw-bold" style={{
+                      background: contrato.estado === 'aprobado' ? '#00a878' : contrato.estado === 'rechazado' ? '#dc3545' : contrato.estado === 'pendiente' ? '#ffc107' : '#adb5bd',
+                      color: contrato.estado === 'pendiente' ? '#0A2E5A' : 'white',
+                      borderRadius: 10,
+                      display: 'inline-flex',
+                      gap: 8
+                    }}>
+                      {contrato.estado === 'aprobado' && <span role="img" aria-label="Aprobado" style={{marginRight: 8}}>✅</span>}
+                      {contrato.estado === 'rechazado' && <span role="img" aria-label="Rechazado" style={{marginRight: 8}}>❌</span>}
+                      {contrato.estado === 'pendiente' && <span role="img" aria-label="Pendiente" style={{marginRight: 8}}>⏳</span>}
                       {contrato.estado ? contrato.estado.toUpperCase() : 'DESCONOCIDO'}
                     </span>
-                  )}
+                  }
                 </div>
                 <div className="mb-2"><strong>Creado:</strong> {new Date(contrato.createdAt).toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' })}</div>
                 {contrato && (
@@ -204,19 +216,21 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
                     {!isSearchMode && !accion && (
                       <div className="d-grid gap-2">
                         <button 
-                          className="btn btn-success btn-md" 
+                          className="btn"
+                          style={{background: '#00a878', color: 'white', fontWeight: 600, borderRadius: 10, fontSize: 17, marginBottom: 8, boxShadow: '0 2px 4px rgba(0,168,120,0.07)'}}
                           onClick={() => mostrarConfirmacion(true)} 
                           disabled={loading}
                         >
-                          <i className="bi bi-check-lg me-2"></i>
+                          <span role="img" aria-label="Aprobar" style={{marginRight: 8}}>✅</span>
                           {loading ? 'Procesando...' : 'Aprobar Contrato'}
                         </button>
                         <button 
-                          className="btn btn-outline-danger btn-md"
+                          className="btn"
+                          style={{background: '#fff', color: '#dc3545', fontWeight: 600, border: '2px solid #dc3545', borderRadius: 10, fontSize: 17, marginBottom: 8, marginLeft: 0}}
                           onClick={() => mostrarConfirmacion(false)} 
                           disabled={loading}
                         >
-                          <i className="bi bi-x-lg me-2"></i>
+                          <span role="img" aria-label="Rechazar" style={{marginRight: 8}}>❌</span>
                           Rechazar Contrato
                         </button>
                       </div>
@@ -236,10 +250,10 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
               </div>
             </div>
           )}
-          {accion && <div className="alert alert-success mt-3 text-center">Contrato {accion}</div>}
+          {accion && <div className="alert alert-success mt-3 text-center" style={{background: '#e8f5e9', color: '#00a878', border: 'none', fontWeight: 600, borderRadius: 10}}>✅ Contrato {accion}</div>}
           {error && (
-            <div className="alert alert-danger mt-3 d-flex align-items-center" role="alert">
-              <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            <div className="alert alert-danger mt-3 d-flex align-items-center" role="alert" style={{background: '#fff3f3', color: '#dc3545', border: 'none', fontWeight: 600, borderRadius: 10}}>
+              <span role="img" aria-label="Error" style={{marginRight: 8}}>❌</span>
               <div>{error}</div>
             </div>
           )}
@@ -247,12 +261,12 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
       </div>
       
       {/* Modal de confirmación */}
-      <div className={`modal fade ${showConfirmModal ? 'show d-block' : ''}`} tabIndex="-1" style={{backgroundColor: showConfirmModal ? 'rgba(0,0,0,0.5)' : 'transparent'}}>
+      <div className={`modal fade ${showConfirmModal ? 'show d-block' : ''}`} tabIndex="-1" style={{backgroundColor: showConfirmModal ? 'rgba(0,0,0,0.37)' : 'transparent', zIndex: 9999}}>
         <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">
-                <i className={`bi bi-${accionPendiente ? 'check-circle' : 'x-circle'} me-2 text-${accionPendiente ? 'success' : 'danger'}`}></i>
+          <div className="modal-content" style={{borderRadius: 16, border: 'none'}}>
+            <div className="modal-header" style={{background: '#f9fafb', borderBottom: 'none', borderRadius: '16px 16px 0 0'}}>
+              <h5 className="modal-title" style={{fontWeight: 700, color: '#0A2E5A'}}>
+                {accionPendiente ? <span role="img" aria-label="Aprobar" style={{marginRight: 8}}>✅</span> : <span role="img" aria-label="Rechazar" style={{marginRight: 8}}>❌</span>}
                 Confirmar acción
               </h5>
               <button type="button" className="btn-close" onClick={() => setShowConfirmModal(false)}></button>
@@ -266,7 +280,8 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
               </button>
               <button 
                 type="button" 
-                className={`btn btn-${accionPendiente ? 'success' : 'danger'}`}
+                className="btn"
+                style={{background: accionPendiente ? '#00a878' : '#fff', color: accionPendiente ? 'white' : '#dc3545', fontWeight: 600, border: accionPendiente ? 'none' : '2px solid #dc3545', borderRadius: 10, fontSize: 17, minWidth: 120}}
                 onClick={confirmarAccion}
                 disabled={loading}
               >
@@ -277,7 +292,7 @@ export default function ContractLinkScreen({ contractId = '', isSearchMode = fal
                   </>
                 ) : (
                   <>
-                    <i className={`bi bi-${accionPendiente ? 'check' : 'x'}-lg me-1`}></i>
+                    {accionPendiente ? <span role="img" aria-label="Aprobar" style={{marginRight: 8}}>✅</span> : <span role="img" aria-label="Rechazar" style={{marginRight: 8}}>❌</span>}
                     {accionPendiente ? 'Aprobar' : 'Rechazar'}
                   </>
                 )}
