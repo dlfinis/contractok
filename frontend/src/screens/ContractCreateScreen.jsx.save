@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+q
+qqqeState } from 'react';qqqqqqport 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -24,9 +24,6 @@ export default function ContractCreateScreen({ onCreated }) {
   const [error, setError] = useState(null);
   const [contractCreated, setContractCreated] = useState(false);
   const [contractData, setContractData] = useState(null);
-  const [showWalletMock, setShowWalletMock] = useState(false);
-  const [awaitingWallet, setAwaitingWallet] = useState(false);
-  
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -39,22 +36,6 @@ export default function ContractCreateScreen({ onCreated }) {
       const world_id = currentUser.world_id || currentUser.world_id;
       if (!world_id) {
         throw new Error('No se pudo obtener la información del usuario');
-      }
-
-      setAwaitingWallet(true);
-      await new Promise(resolve => setTimeout(resolve, 2000)); 
-      setShowWalletMock(true);
-      await new Promise(resolve => {
-        const check = () => {
-          if (!showWalletMock) resolve();
-          else setTimeout(check, 80);
-        };
-        check();
-      });
-      setAwaitingWallet(false);
-
-      if (!window.MiniKit || typeof window.MiniKit.pay !== 'function') {
-        throw new Error('No se encontró la integración de la wallet. Abre la app dentro de World App.');
       }
 
       // 1. Realizar pago con MiniKit (wallet)
@@ -134,36 +115,7 @@ export default function ContractCreateScreen({ onCreated }) {
     );
   }
 
-  const handleApproveWallet = async () => {
-    setShowWalletMock(false);
-    setLoading(true);
-    setError(null);
-    try {
-      // ... (toda tu lógica de pago y guardado aquí)
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Error al crear el contrato o pagar');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleRejectWallet = () => {
-    setShowWalletMock(false);
-    setError('El usuario rechazó la aprobación del pago. No se creó el contrato.');
-  };
-
   return (
-    <>
-    {showWalletMock && (
-      <WalletApprovalMock
-        open={showWalletMock}
-        onClose={handleRejectWallet}
-        onApprove={handleApproveWallet}
-        onReject={handleRejectWallet}
-        amount={monto || 0}
-        currency="WDL"
-      />
-    )}
     <div className="home-main">
       <div className="card shadow-sm m-3" style={{border: 'none', background: '#f9fafb'}}>
         <div className="card-body mx-2">
@@ -288,6 +240,6 @@ export default function ContractCreateScreen({ onCreated }) {
         </div>
       </div>
     </div>
-  </>
+    <WalletApprovalMock open={loading} amount={monto || 0} currency="WDL" onClose={() => {}} />
   );
 }

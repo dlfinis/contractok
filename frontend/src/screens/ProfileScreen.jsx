@@ -141,12 +141,15 @@ export default function ProfileScreen() {
     }
   }
   // Datos por defecto cuando no hay información
+  // PERFIL DE ANA
   const defaultUser = {
-    name: generateText({}).name,
-    createdAt: new Date().toISOString(),
+    name: 'Ana Monoya',
+    createdAt: '2023-09-15T00:00:00.000Z',
     isVerified: true,
-    world_id: generateText({}).code,
-    id: generateText({}).code
+    world_id: '#A1234',
+    id: '#A1234',
+    bio: 'Emprendedora, especialista en ventas y servicios digitales. Apasionada por la tecnología y la resolución de problemas.',
+    location: 'Bogotá, Colombia'
   };
 
   const defaultContracts = [
@@ -220,67 +223,90 @@ export default function ProfileScreen() {
   };
 
   const { completed: completedContracts, total: totalContracts } = getContractStats();
-  const rating = Math.round((completedContracts / Math.max(1, totalContracts)) * 5);
+  // El rating debe estar en escala 1-5, nunca mayor a 5
+  let rating = (completedContracts / Math.max(1, totalContracts)) * 5;
+  if (isNaN(rating)) rating = 0;
+  rating = Math.max(0, Math.min(5, rating)); // Clamp entre 0 y 5
   const successRate = contracts.length ? Math.round((completedContracts / contracts.length) * 100) : 0;
 
   return (
+    <>
     <div className="container py-4">
       <div className="row mb-4">
+        {/* Perfil de usuario */}
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 shadow-sm border-0" style={{background: '#f2f6fa', borderRadius: 16}}>
             <div className="card-body d-flex flex-column">
               <div className="position-relative d-inline-block mb-3">
-                <div 
-                  className="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" 
-                  style={{ width: '120px', height: '120px' }}
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center mx-auto shadow"
+                  style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #0A2E5A 60%, #1976D2 100%)' }}
                 >
-                  <i className="bi bi-person text-light" style={{ fontSize: '3rem' }}></i>
+                  <i className="bi bi-person" style={{ fontSize: '1.5rem', color: '#fff' }}></i>
                 </div>
-                {/* {displayUser.isVerified && (
-                  <div className="position-absolute bottom-0 end-0 bg-success text-white rounded-circle p-1">
-                    <i className="bi bi-check-lg"></i>
-                  </div>
-                )} */}
               </div>
-              <h4 className="mb-1">{displayUser.name || 'Usuario'}</h4>
+              <h4 className="mb-1 fw-bold" style={{color:'#0A2E5A'}}>{displayUser.name || 'Usuario'}
+                <span className="badge bg-success ms-2 align-middle" style={{fontSize:'0.8em', verticalAlign:'middle'}}>
+                  <i className="bi bi-patch-check-fill me-1"></i>Verificado
+                </span>
+              </h4>
+              <div className="mb-2 text-secondary" style={{fontSize:'0.98rem'}}><i className="bi bi-geo-alt me-1"></i>{displayUser.location}</div>
+              <div className="mb-2 text-dark" style={{fontSize:'0.97rem'}}>{displayUser.bio}</div>
+              {/* Visualización avanzada de reputación */}
+              <div className="my-2">
+                <div className="d-flex align-items-center mb-1">
+                  <span className="me-2" style={{fontSize:'1em', fontWeight:600}}>Reputación:</span>
+                  {/* Estrellas grandes y coloridas */}
+                  <span style={{fontSize:'1.4em'}}>
+                    {Array.from({length: 5}).map((_, i) => {
+                      const diff = rating - i;
+                      if (diff >= 1) return <i key={i} className="bi bi-star-fill text-warning mx-1"></i>;
+                      if (diff >= 0.5) return <i key={i} className="bi bi-star-half text-warning mx-1"></i>;
+                      return <i key={i} className="bi bi-star text-warning mx-1"></i>;
+                    })}
+                  </span>
+                  <span className="ms-2 fw-bold" style={{color:'#0A2E5A', fontSize:'1.1em'}}>{rating.toFixed(1)}/5</span>
+                </div>
+                <div className="text-success fw-bold mt-1" style={{fontSize:'0.95em'}}>
+                  <i className="bi bi-piggy-bank me-1"></i>Fee preferencial: 2.5% por buena reputación
+                </div>
+              </div>
+
               <p className="text-muted mb-3">
                 <small>Miembro desde {new Date(displayUser.createdAt).toLocaleDateString()}</small>
               </p>
-              
+
+
+              <p className="text-muted mb-3">
+                <small>Miembro desde {new Date(displayUser.createdAt).toLocaleDateString()}</small>
+              </p>
               <div className="row g-3 mb-3">
-                <div className="col-3">
-                  <div className="bg-light p-2 rounded-3">
-                    <div className="h5 mb-0">{displayContracts.length}</div>
+                <div className="col-4">
+                  <div className="p-2 rounded-3" style={{background:'#e3eaf3'}}>
+                    <div className="h5 mb-0 fw-bold" style={{color:'#0A2E5A'}}>{displayContracts.length}</div>
                     <small className="text-muted">Contratos</small>
                   </div>
                 </div>
-                <div className="col-3">
-                  <div className="bg-light p-2 rounded-3">
-                    <div className="h5 mb-0">{completedContracts}</div>
+                <div className="col-4">
+                  <div className="p-2 rounded-3" style={{background:'#e3eaf3'}}>
+                    <div className="h5 mb-0 fw-bold" style={{color:'#0A2E5A'}}>{completedContracts}</div>
                     <small className="text-muted">Completados</small>
                   </div>
                 </div>
-                {/* <div className="col-3">
-                  <div className="bg-light p-2 rounded-3">
-                    <div className="h5 mb-0">{successRate}%</div>
-                    <small className="text-muted">Éxito</small>
-                  </div>
-                </div> */}
-                <div className="col-3">
-                  <div className="bg-light p-2 rounded-3">
-                    <div className="h5 mb-0 d-flex align-items-center justify-content-center">
+                <div className="col-4">
+                  <div className="p-2 rounded-3" style={{background:'#e3eaf3'}}>
+                    <div className="h5 mb-0 d-flex align-items-center justify-content-center fw-bold" style={{color:'#0A2E5A'}}>
                       {rating.toFixed(1)} <i className="bi bi-star-fill text-warning ms-1"></i>
                     </div>
                     <small className="text-muted">Rating</small>
                   </div>
                 </div>
               </div>
-              
               <div className="d-flex justify-content-center gap-2 mt-auto">
-                <button className="btn btn-outline-primary btn-sm">
+                <button className="btn btn-outline-primary btn-sm px-3">
                   <i className="bi bi-pencil me-1"></i> Editar
                 </button>
-                <button className="btn btn-outline-secondary btn-sm">
+                <button className="btn btn-outline-secondary btn-sm px-3">
                   <i className="bi bi-share me-1"></i> Compartir
                 </button>
               </div>
@@ -348,5 +374,22 @@ export default function ProfileScreen() {
         </div>
       </div>
     </div>
+  {/* Testimonios al final de la pantalla */}
+  <div className="container mt-4">
+    <div className="row justify-content-center">
+      <div className="col-md-6">
+        <div className="fw-bold text-secondary mb-1" style={{fontSize:'0.97em'}}><i className="bi bi-chat-quote me-1"></i>Testimonios</div>
+        <div className="bg-white border rounded-3 p-2 mb-1" style={{fontSize:'0.95em'}}>
+          <i className="bi bi-quote text-primary me-1"></i>"Ana fue muy profesional y cumplió con todo lo pactado."<br/>
+          <span className="text-muted" style={{fontSize:'0.9em'}}>— Carlos G.</span>
+        </div>
+        <div className="bg-white border rounded-3 p-2" style={{fontSize:'0.95em'}}>
+          <i className="bi bi-quote text-primary me-1"></i>"Excelente comunicación, volvería a contratarla."<br/>
+          <span className="text-muted" style={{fontSize:'0.9em'}}>— Laura P.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </>
   );
 }

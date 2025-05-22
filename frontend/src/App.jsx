@@ -6,7 +6,10 @@ import ContractLinkScreen from "./screens/ContractLinkScreen";
 import ContractDetailScreen from "./screens/ContractDetailScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import ContractsListScreen from "./screens/ContractsListScreen";
+import ContractsMockScreen from "./screens/ContractsMockScreen";
+import EvidenceUploadMockScreen from "./screens/EvidenceUploadMockScreen";
 import ConflictResolutionScreen from "./screens/ConflictResolutionScreen";
+import ArbitrationProcessScreen from "./screens/ArbitrationProcessScreen";
 import InitialAnimation from "./components/InitialAnimation";
 import HomeScreen from "./components/HomeScreen";
 import NavBar from "./components/NavBar";
@@ -100,10 +103,16 @@ export default function App() {
                 <HomeScreen 
                   onCreate={handleCreate} 
                   onJoin={handleJoin} 
+                  // Acceso directo temporal a la pantalla mock
+                  mockButton={<button className="btn btn-outline-primary mt-3" onClick={() => navigate('/contracts-mock')}>
+                    <i className="bi bi-folder2-open me-2"></i>Pantalla Mock Contratos
+                  </button>}
                 />} 
               />
               <Route path="/contracts" element={<ContractsListScreen />} />
               <Route path="/contracts/:id" element={<ContractDetailScreen />} />
+              <Route path="/contracts-mock" element={<ContractsMockScreen />} />
+              <Route path="/evidencia-mock" element={<EvidenceUploadMockScreen />} />
               <Route path="/contracts/resolve-conflict/:id" element={<ConflictResolutionScreen />} />
               <Route path="/profile/:id" element={<ProfileScreen />} />
               <Route path="/create" element={
@@ -140,6 +149,7 @@ export default function App() {
                   </button>
                 </div>
               } />
+              <Route path="/arbitraje-mock" element={<ArbitrationProcessScreen />} />
             </Routes>
           </main>
         </div>

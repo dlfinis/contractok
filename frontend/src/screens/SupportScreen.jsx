@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import BackendHealth from "../components/BackendHealth";
 import "./supportScreen.css";
 
@@ -126,6 +127,11 @@ export default function SupportScreen({ onClose }) {
   }, [onClose]);
 
   const [activeTab, setActiveTab] = useState('users');
+  const navigate = useNavigate();
+  // Botón para abrir el proceso de arbitraje (pantalla mock)
+  const handleGoToArbitrationMock = () => {
+    navigate('/arbitraje-mock');
+  }
   const [userMsg, setUserMsg] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -305,26 +311,36 @@ export default function SupportScreen({ onClose }) {
         </p>
         
         <div className="mb-4">
-          <ul className="nav nav-tabs mb-3" id="supportTabs" role="tablist">
-            <li className="nav-item" role="presentation">
-              <button
-                className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
-                onClick={() => setActiveTab('users')}
-                type="button"
-              >
-                Usuarios
-              </button>
-            </li>
-            <li className="nav-item" role="presentation">
-              <button
-                className={`nav-link ${activeTab === 'localStorage' ? 'active' : ''}`}
-                onClick={() => setActiveTab('localStorage')}
-                type="button"
-              >
-                LocalStorage
-              </button>
-            </li>
-          </ul>
+          <div className="d-flex align-items-center justify-content-between mb-2">
+            <ul className="nav nav-tabs mb-0" id="supportTabs" role="tablist">
+              <li className="nav-item" role="presentation">
+                <button
+                  className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('users')}
+                  type="button"
+                >
+                  Usuarios
+                </button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button
+                  className={`nav-link ${activeTab === 'localStorage' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('localStorage')}
+                  type="button"
+                >
+                  LocalStorage
+                </button>
+              </li>
+            </ul>
+            <button
+              className="btn btn-outline-warning btn-sm ms-2"
+              style={{ borderRadius: 8, fontWeight: 600 }}
+              type="button"
+              onClick={handleGoToArbitrationMock}
+            >
+              <i className="bi bi-lightning-charge me-1"></i> Proceso Arbitraje (Mock)
+            </button>
+          </div>
 
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 style={{ fontSize: '1.1rem' }}>

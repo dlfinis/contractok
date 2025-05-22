@@ -182,6 +182,9 @@ export default function WorldIDLogin({ onAuth, auto = false, onSuccess, onError 
           merkle_root: merkle_root || null,
           signal_hash: signal_hash || ""
         });
+
+        const walletAddress = window.MiniKit?.walletAddress
+        console.log('🚀 Wallet Address:', walletAddress);
         
         if (!success) {
           throw new Error('Error al verificar con el backend');

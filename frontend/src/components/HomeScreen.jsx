@@ -201,21 +201,21 @@ export default function HomeScreen({ onCreate, onJoin }) {
               Reintentar
             </button>
           </div>
-        ) : !authHash ? (
+        ) : false ? (
           <div>
-            <WorldIDLogin 
+            {/* <WorldIDLogin 
               auto={true} 
               onAuth={handleSignIn} 
               onError={handleSignInError}
               aria-label="Iniciar sesión con World ID"
-            />
+            /> */}
             <p style={{ 
               fontSize: '0.85rem', 
               color: '#666', 
               marginTop: '10px',
               textAlign: 'center'
             }}>
-              La autenticación se realiza automáticamente vía World ID.
+              {/* La autenticación se realiza automáticamente vía World ID. */}
             </p>
           </div>
         ) : (
